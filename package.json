@@ -1,0 +1,23 @@
+{
+  "name": "roguecedural",
+  "version": "1.0.0",
+  "description": "GUTS2016",
+  "main": "project/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ScottehMax/GUTS2016.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ScottehMax/GUTS2016/issues"
+  },
+  "homepage": "https://github.com/ScottehMax/GUTS2016#readme",
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-imagemagick": "^0.1.5"
+  }
+}
