@@ -6,6 +6,7 @@ module.exports = function(grunt) {
       dev : {
         from : 'dev/tiles/',
         to : 'project/assets/tiles/',
+        files : '*.png',
         props : {
           filter : 'point',
           width : 256
@@ -14,7 +15,7 @@ module.exports = function(grunt) {
     },
     'imagemagick-convert' : {
       dev : {
-        args : ['-delay', '20', ]
+        args : ['-delay', '20', '-loop', '0',  './project/assets/tiles/lava1_*.png', './project/assets/tiles/lava1.gif']
       }
     }
   });
