@@ -15,11 +15,15 @@ class Mob extends Entity {
     super.take_damage(dam);
   }
 
-  equip_item(item) {
-    super.equip_item(item);
-  }
-
   lose_item(item) {
     super.lose_item(item);
+  }
+
+  attack(){
+    super.attack();
+  }
+
+  consume(item){
+    super.consume(item);
   }
 }

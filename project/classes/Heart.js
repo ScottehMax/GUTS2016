@@ -4,15 +4,7 @@
  */
 class Heart extends Item{
   constructor(){
+    super('');
     this.points = 20;
-  }
-
-  consumed(entity){
-    // Increases health of entity that has consumed it unless
-    // it returns false in which case it is not consumed at
-    // all and remains where it was
-    if(entity.health == 100) return false;
-    else if(entity.health+=points >= 100) entity.health = 100;
-    else entity.health+=points;
   }
 }

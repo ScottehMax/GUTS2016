@@ -2,7 +2,6 @@
  Items are consumables by entities
  */
 class Item{
-  constructor(){}
-  consumed(entity){}
+  constructor(n){this.name = n;}
   degrade(){this.durability--;}
 }

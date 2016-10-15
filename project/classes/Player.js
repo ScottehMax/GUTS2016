@@ -21,4 +21,12 @@ class Player extends Entity {
   lose_item(item) {
     super.lose_item(item);
   }
+
+  attack(){
+    super.attack();
+  }
+
+  consume(item){
+    super.consume(item);
+  }
 }
