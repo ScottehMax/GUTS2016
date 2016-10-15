@@ -1,3 +1,4 @@
+"use strict";
 /*
  Swords are weapons that cause damage equal to their attack stat
  onto other entities

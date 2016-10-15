@@ -42,7 +42,7 @@ wsServer.on('request', function (request) {
   var new_user = new user.User(connection);
   var player_obj = new player.Player(null, null, null, 100, null, null, null, 0, connection);
   new_user.player = player_obj;
-  player_obj.user = new_user;
+  player_obj.uuid = new_user.uuid;
   connection.player = player_obj;
 
   // Global.rooms[0].spawn_player(player_obj);

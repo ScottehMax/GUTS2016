@@ -1,3 +1,4 @@
+"use strict";
 /*
  Armour is equipped by entities and provides them extra protection
  for a set time

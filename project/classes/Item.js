@@ -1,3 +1,4 @@
+"use strict";
 /*
  Items are consumables by entities
  */
