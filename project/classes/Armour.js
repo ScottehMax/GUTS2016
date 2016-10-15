@@ -7,8 +7,4 @@ class Armour extends Item{
     super(name);
     this.durability = dur;
   }
-
-  degrade(){
-    super.degrade();
-  }
 }
