@@ -13,6 +13,7 @@ class Player extends Entity {
       this.floor.grid[this.y][this.x].occupied = false;
       delete this.floor.players[this.uuid];
       delete this.floor.dungeon.players[this.uuid];
+      console.log(this.uuid + ' has perished');
     }
   }
 }

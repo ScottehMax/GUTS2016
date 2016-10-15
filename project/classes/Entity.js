@@ -101,7 +101,7 @@ class Entity {
     ent.take_damage(weapon.attack);
     weapon.degrade();
     if(weapon.durability <= 0) this.lose_item('sword');
-    if(ent.health <= 0) this.xp += ATTACK_XP;
+    if(ent.health <= 0){ console.log(this.name + ' killed ' + ent.name); this.xp += ATTACK_XP;}
     if(this.xp >= (this.level * XP_LEVEL_UP_SCORE)) this.level_up();
   }
 
@@ -125,9 +125,7 @@ class Entity {
   die(){
     var i = this.items;
     // Drop any items the entity was carrying
-    // if(i['sword'] != null && i['armour'] == null) drop sword in current tile
-    // else if(i['sword'] == null && i['armour'] != null) drop armour in current tile
-    // else drop sword and armour in adjacent tiles
+    if(i['sword'] != null) console.log('DROPPED ' + i['sword'])// this.dungeon.grid[this.y][this.x].item(sword)
     // Erase entity
     this.erase();
   }
@@ -136,8 +134,6 @@ class Entity {
     // Player levels up which increased their health as well as resetting at the new maximum
     this.bonus_health = (++this.level) * 2;
     this.health = 100 + this.bonus_health;
-    for(var i = 0; i < 20; i++) console.log(this.health+ '\n');
-
   }
 
 }
