@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Game</title>
+
+  <script type="text/javascript" src="/js/keypress-2.1.4.min.js"></script>
+  <link rel="stylesheet" href="/css/style.css" type="text/css" />
+</head>
+<body>
+  <div id="main">
+    <canvas width="704" height="704" id="game__background"></canvas>
+    <div id="mask"></div>
+  </div>
+
+  <script type="text/javascript">
+    function loadImages(sources, callback) {
+      var images = {};
+      var loadedImages = 0;
+      var numImages = sources.length;
+      for(var i = 0; i < sources.length; i++) {
+        var imgName = sources[i].split('.')[0];
+        images[imgName] = new Image();
+        images[imgName].onload = function() {
+          if(++loadedImages >= numImages) {
+            callback(images);
+          }
+        };
+        images[imgName].src = '/img/tiles/' + sources[i];
+      }
+    }
+
+    var listener = new window.keypress.Listener();
+
+    listener.simple_combo("up", function(){
+      console.log("moved up");
+      startBoard.unshift([0,0,0,0,0,0,0,0,0,0,0]);
+      populate(startBoard);
+    });
+    listener.simple_combo("down", function(){
+      console.log("moved down");
+      startBoard.shift();
+      populate(startBoard);
+    });
+    listener.simple_combo("left", function(){
+      console.log("moved left");
+    });
+    listener.simple_combo("right", function(){
+      console.log("moved right");
+    });
+
+    var canvas = document.getElementById('game__background');
+    var context = canvas.getContext('2d');
+
+    var sources = [
+      'stone1.png',
+      'stone2.png',
+      'stone3.png',
+      'wall1.png',
+      'wall2.png',
+      'wall3.png',
+      'lava1.gif'
+    ];
+
+    var startBoard = [
+      [1,1,1,1,1,0,0,0,0,1,1],
+      [1,0,0,0,0,0,0,0,0,1,1],
+      [1,0,0,0,0,0,0,0,1,1,1],
+      [1,0,0,0,0,0,0,0,1,1,1],
+      [1,1,1,0,0,0,0,1,1,1,1],
+      [1,1,1,0,0,0,1,1,1,1,1],
+      [1,1,1,0,0,0,0,1,1,1,1],
+      [1,1,1,0,0,0,0,1,1,1,1],
+      [1,1,1,0,0,0,0,1,1,1,1],
+      [1,1,1,0,0,0,0,0,1,1,1],
+      [1,1,1,0,0,0,0,0,1,1,1],
+    ];
+
+    var images;
+
+    loadImages(sources, function(imagesOut) {
+      images = imagesOut;
+
+      populate(startBoard);
+    });
+
+    function populate(board) {
+      for (var i = 0; i < 11; i++) {
+        var row = board[i];
+        for (var j = 0; j < 11; j++) {
+          var image = images.wall1;
+          switch (row[j]) {
+            case 0:
+              var image = images.stone2;
+              break;
+          }
+
+          context.drawImage(image, j*64, i*64);
+        }
+      }
+    }
+  </script>
+</body>
+</html>
