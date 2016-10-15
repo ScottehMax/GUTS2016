@@ -14,16 +14,39 @@ var randint = utils.randint;
 var distance = utils.distance;
 
 const MAX_TUNNELS = 2;
+const MAX_FLOORS = 15;
 const DRAW_DISTANCE = 5;
 
 class Dungeon {
-  // hello darkness, my old friend
   constructor(height, width, max_h, max_w) {
+    this.floors = {};
+    this.players = {};
+    this.height = height;
+    this.width = width;
+    this.max_h = max_h;
+    this.max_w = max_w;
+    this.floors[0] = new Floor(height, width, max_h, max_w, this);
+    this.floors[0].index = 0;
+  }
+
+  add_floor(stair_room_hwyx, stair_yx) {
+    this.floors[Object.keys(this.floors).length] = new Floor(this.height, this.width, this.max_h, this.max_w, this, [stair_room_hwyx, stair_yx]);
+    this.floors[Object.keys(this.floors).length-1].index = Object.keys(this.floors).length - 1;
+  }
+
+
+}
+
+class Floor {
+  // hello darkness, my old friend
+  constructor(height, width, max_h, max_w, dungeon, predef_room) {
     this.height = height;
     this.width = width;
     // max room sizes
     this.max_h = max_h;
     this.max_w = max_w;
+
+    this.dungeon = dungeon;
     // room info stored here
     this.rooms = [];
     this.players = {};
@@ -38,15 +61,53 @@ class Dungeon {
       }
     }
 
-    this.add_starting_room();
+    if (predef_room != undefined) {
+      this.add_custom_starting_room(predef_room);
+    } else {
+      this.add_starting_room();
+    }
     for (var i = 0; i < 10; i++) {
       this.add_subsequent_room();
       this.create_tunnel(this.rooms[this.rooms.length - 1], this.rooms[this.closest_room(this.rooms[this.rooms.length - 1])]);
     };
 
+    // put stairs in random room
+    var room_index = randint(0, this.rooms.length - 1)
+    var room = this.rooms[room_index];
+    var stairs = [randint(room.y, room.y + room.height - 1), randint(room.x, room.x + room.width - 1)];
+    this.grid[stairs[0]][stairs[1]] = new Tile('down_stairs', room_index);
+
     this.tick();
   };
 
+  add_floor() {
+    this.dungeon.floors[Object.keys(this.dungeon.floors).length] = new Floor(this.height, this.width, this.max_h, this.max_w);
+  }
+
+  add_custom_starting_room(predef_room) {
+    var stair_room_hwyx = predef_room[0];
+    var stair_yx = predef_room[1];
+    var height = stair_room_hwyx[0];
+    var width = stair_room_hwyx[1];
+    var y = stair_room_hwyx[2];
+    var x = stair_room_hwyx[3];
+
+    for (var y_loc = y; y_loc < (y + height); y_loc++) {
+      for (var x_loc = x; x_loc < (x + width); x_loc++) {
+        // console.log(y_loc.toString() + ' ' + x_loc.toString());
+        this.grid[y_loc][x_loc] = new Tile('floor', 0);
+      }
+    };
+
+    console.log('spawning up stairs at... ' + stair_yx[0].toString() + ' ' + stair_yx[1].toString());
+
+    var floor_index = Object.keys(this.dungeon.floors).length;
+    console.log(floor_index);
+    this.grid[stair_yx[0]][stair_yx[1]] = new Tile('up_stairs', Object.keys(this.dungeon.floors).length);
+
+    var room_obj = new Room(height, width, y, x, 0);
+    this.rooms.push(room_obj);
+  }
 
   add_starting_room() {
     // generate a bunch of random stuff for the room
@@ -82,7 +143,7 @@ class Dungeon {
     var overlapping = true;
     var tries = 0;
 
-whileloop:
+  whileloop:
     while (overlapping) {
       tries++;
       // generate a bunch of random stuff for the room
@@ -96,7 +157,7 @@ whileloop:
       ////var y = (Math.random() * (this.height - height - 3) | 0) + 1;
       ////var x = (Math.random() * (this.width - width - 3) | 0) + 1;
       // check it doesn't overlap with a current room
-roomloop:
+  roomloop:
       for (var room in this.rooms) {
         if (this.check_collision(height, width, y, x, room)) {
           // if it returns true, get out of here! it overlaps.
@@ -230,10 +291,16 @@ roomloop:
     return [randint(room.y, room.y + room.height - 1), randint(room.x, room.x + room.width - 1)];
   }
 
-  spawn_player(player) {
+  spawn_player(player, loc) {
     this.players[player.uuid] = player;
-    player.dungeon = this;
-    var location = this.random_location(this.rooms[randint(0, this.rooms.length-1)]);
+    this.dungeon.players[player.uuid] = player;
+    player.floor = this;
+    if (loc == undefined) {
+      var location = this.random_location(this.rooms[randint(0, this.rooms.length-1)]);
+    } else {
+      var location = loc;
+    }
+    // var location = this.random_location(this.rooms[randint(0, this.rooms.length-1)]);
     while (this.grid[location[0]][location[1]].occupied) {
       location = this.random_location(this.rooms[randint(0, this.rooms.length-1)]);
     }
@@ -249,6 +316,7 @@ roomloop:
     // returns true if player can move, false otherwise
     if (y > this.height - 1 || x > this.width - 1) return false;
     if (!!this.grid[y][x].occupied) {
+      console.log(this.grid[y][x].occupied);
       // interact with whatever entity is there lmao
       return false;
     }
@@ -263,6 +331,27 @@ roomloop:
       case 'floor':
       case 'tunnel':
         return true;
+      case 'up_stairs':
+        // go upstairs
+        this.grid[player.y][player.x].occupied = false;
+        delete this.players[player.uuid];
+        this.dungeon.floors[this.index - 1].spawn_player(player, [y, x]);
+        return false;
+      case 'down_stairs':
+        // console.log(Object.keys(this.dungeon.floors).length);
+        // console.log(this.index);
+        if (Object.keys(this.dungeon.floors).length == this.index + 1) {
+          var room = this.rooms[this.grid[y][x].room_index];
+          this.dungeon.add_floor([room.height, room.width, room.y, room.x], [y, x]);
+          
+        }
+        // move player down a floor
+        this.grid[player.y][player.x].occupied = false;
+        // this.players = {};
+        delete this.players[player.uuid];
+        this.dungeon.floors[this.index + 1].spawn_player(player, [y, x]);
+        // go downstairs, if it doesn't exist, make a new floor
+        return false;
     }
   }
 
@@ -284,23 +373,23 @@ roomloop:
   }
 
   tick() {
-    var dungeon = this;
+    var floor = this;
     var f = function() {
       // loop over npcs here and make them do shit
-      for (var npc in dungeon.npcs) {
+      for (var npc in floor.npcs) {
         npc.do_shit();
       }
-      // console.log(dungeon.players);
-      for (var player in dungeon.players) {
+      // console.log(floor.players);
+      for (var player in floor.players) {
         // 
-        if (dungeon.players[player].overwatch) {
-          dungeon.players[player].socket.sendUTF(dungeon.pretty_print(dungeon.grid, '<br>'));
+        if (floor.players[player].overwatch) {
+          Global.users[floor.players[player].uuid].socket.sendUTF(floor.pretty_print(floor.grid, '<br>'));
         } else {
-          // dungeon.players[player].socket.sendUTF(dungeon.pretty_print(dungeon.view(dungeon.players[player].y, dungeon.players[player].x, DRAW_DISTANCE), '<br>'));  
-          dungeon.send_tilemap(dungeon.players[player]);
+          Global.users[floor.players[player].uuid].socket.sendUTF(floor.pretty_print(floor.view(floor.players[player].y, floor.players[player].x, DRAW_DISTANCE), '<br>'));  
+          // floor.send_tilemap(floor.players[player]);
         }
         
-        //console.log(dungeon.players[player].socket);
+        //console.log(floor.players[player].socket);
       }
     };
     setInterval(f, 100);
@@ -351,6 +440,12 @@ roomloop:
           case 'lava':
             res += '%';
             break;
+          case 'up_stairs':
+            res += '<';
+            break;
+          case 'down_stairs':
+            res += '>';
+            break;
           }
         }
       }
@@ -383,19 +478,19 @@ class Tile {
 
 // tests
 
-// var dungeon = new Dungeon(20, 20, 10, 10);
-// dungeon.add_starting_room();
+// var floor = new Dungeon(20, 20, 10, 10);
+// floor.add_starting_room();
 
-// console.log(dungeon.pretty_print());
+// console.log(floor.pretty_print());
 
 // for (var i = 0; i < 5; i++) {
-//   dungeon.add_subsequent_room();
-//   console.log(dungeon.pretty_print());
-//   dungeon.create_tunnel(dungeon.rooms[dungeon.rooms.length - 1], dungeon.rooms[dungeon.closest_room(dungeon.rooms[dungeon.rooms.length - 1])]);
-//   console.log(dungeon.pretty_print());
+//   floor.add_subsequent_room();
+//   console.log(floor.pretty_print());
+//   floor.create_tunnel(floor.rooms[floor.rooms.length - 1], floor.rooms[floor.closest_room(floor.rooms[floor.rooms.length - 1])]);
+//   console.log(floor.pretty_print());
 // }
 
-// console.log(dungeon.pretty_print());
+// console.log(floor.pretty_print());
 
 exports.Dungeon = Dungeon;
 
