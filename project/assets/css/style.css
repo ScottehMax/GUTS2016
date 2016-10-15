@@ -77,7 +77,7 @@ body {
     transform: perspective( 1000px ) rotateX( 20deg ) translateZ(64px);
 }
 
-.to-3d > #game__ground{
+.to-3d > #game__ground, .to-3d > #game__sprites{
     -webkit-transform: perspective( 1000px ) rotateX( 20deg );
     -moz-transform: perspective( 1000px ) rotateX( 20deg );
     -o-transform: perspective( 1000px ) rotateX( 20deg );
