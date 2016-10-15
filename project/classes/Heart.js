@@ -3,8 +3,8 @@
  consumes it
  */
 class Heart extends Item{
-  constructor(){
+  constructor(p){
     super('');
-    this.points = 20;
+    this.points = p;
   }
 }
