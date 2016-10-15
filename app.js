@@ -36,7 +36,7 @@ wsServer.on('request', function (request) {
 
   var connection = request.accept('echo-protocol', request.origin);
   var new_user = new user.User(connection);
-  var player_obj = new player.Player(null, null, null, 100,  Global.rooms[0], null, null, connection);
+  var player_obj = new player.Player(null, null, null, 100,  Global.rooms[0], null, null, 0, connection);
   new_user.player = player_obj;
   player_obj.user = new_user;
   connection.player = player_obj;

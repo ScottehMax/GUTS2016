@@ -3,7 +3,7 @@
  and are hostile towards players
  */
 class Mob extends Entity {
-  constructor(name, y, x, h, start_sword, start_armour) {
-    super(name, y, x, h, start_sword, start_armour);
+  constructor(name, y, x, h, start_sword, start_armour, level) {
+    super(name, y, x, h, start_sword, start_armour, level);
   }
 }
