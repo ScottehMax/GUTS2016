@@ -1,5 +1,6 @@
-import {Player} from "./Player";
 "use strict";
+import {Player} from "./Player";
+
 /*
  Mobs are entities not controlled by users
  and are hostile towards players
@@ -45,3 +46,5 @@ class Mob extends Entity {
     }
   }
 }
+
+exports.Mob = Mob;

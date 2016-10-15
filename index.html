@@ -40,6 +40,7 @@
       var socket = new WebSocket(url, "echo-protocol");
 
       socket.addEventListener("open", function(event) {
+        socket.send(JSON.stringify({type: 'get_rooms'}));
         // this runs when the socket is first opened
       });
 
@@ -51,10 +52,16 @@
 
           // do protocol parsing here
 
-          if (res.uuid) {
+          if (res.uuid && uuid == undefined) {
             // we've received a uuid, use that locally
             uuid = res.uuid;
             console.log(uuid + ' assigned!');
+          }
+          if (res.type) {
+            switch(res.type) {
+            case 'room_info':
+              break;
+            }
           }
 
         } catch (e) {
@@ -78,8 +85,17 @@
 </head>
 <body>
   <center>
-  <div id="board"></div>
-  <span id="fuck" style="font-family: Courier;letter-spacing: 8px;">Fuck: </span>
+    <div id="mainscreen" style="display: none">
+      Welcome to Stockemon!
+      <div id="buttons">
+        <button id="create_battle" onClick="create_battle()">Create Dungeon</button>
+        <button id="join_battle" onClick="get_battles()">Join Dungeon</button>
+      </div>
+    </div>
+    <div id="roomlist" style="display: none">
+      Room list is here, lads.
+    </div>
+  <span id="fuck" style="font-family: Courier;letter-spacing: 8px;">Placeholder.</span>
   </center>
 </body>
 </html>

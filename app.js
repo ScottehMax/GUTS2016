@@ -29,7 +29,9 @@ var wsServer = new WebSocketServer({
   autoAcceptConnections: false
 });
 
-Global.rooms[0] = new dungeon.Dungeon(30, 30, 7, 7);
+Global.rooms[0] = new dungeon.Dungeon(40, 40, 9, 9);
+
+var master = false;
 
 wsServer.on('request', function (request) {
   console.log('someone is connecting!');
@@ -40,6 +42,12 @@ wsServer.on('request', function (request) {
   new_user.player = player_obj;
   player_obj.user = new_user;
   connection.player = player_obj;
+
+  if (!master) {
+    console.log('setting overwatch');
+    connection.player.overwatch = true;
+    master = true;
+  }
 
   Global.rooms[0].spawn_player(player_obj);
 
@@ -66,6 +74,18 @@ wsServer.on('request', function (request) {
       // console.log(Global);
       Global.users[cmd.uuid].player.move(cmd['dir']);
       break;
+    case 'get_rooms':
+      var room_data = []
+      for (var room in Global.rooms) {
+        room_data.push({index: room, players: Global.rooms[room].players.length});
+      }
+      connection.sendUTF(JSON.stringify(room_data));
+    case 'join':
+      Global.rooms[cmd.room_index].spawn_player(connection.player);
+    case 'create':
+      var newdungeon = new dungeon.Dungeon(40, 40, 9, 9);
+      Global.rooms.push(newdungeon);
+      newdungeon.spawn_player(connection.player);
     }
     // var connection = request.accept('echo-protocol', request.origin);
     // var new_user = new user.User(connection);
