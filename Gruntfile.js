@@ -3,7 +3,7 @@ module.exports = function(grunt) {
   // Project configuration.
   grunt.initConfig({
     'imagemagick-resize' : {
-      dev : {
+      'tiles' : {
         from : 'dev/tiles/',
         to : 'project/assets/tiles/',
         files : '*.png',
@@ -14,15 +14,25 @@ module.exports = function(grunt) {
       }
     },
     'imagemagick-convert' : {
-      dev : {
-        args : ['-delay', '20', '-loop', '0',  './project/assets/tiles/lava1_*.png', './project/assets/tiles/lava1.gif']
+      'lava1' : {
+        args : [ '-delay', '20', '-loop', '0',  './project/assets/tiles/lava1_*.png', './project/assets/tiles/lava1.gif' ]
+      },
+      'lava2' : {
+        args : [ '-delay', '20', '-loop', '0',  './project/assets/tiles/lava2_*.png', './project/assets/tiles/lava2.gif' ]
+      },
+      'lava3' : {
+        args : [ '-delay', '20', '-loop', '0',  './project/assets/tiles/lava3_*.png', './project/assets/tiles/lava3.gif' ]
       }
+    },
+    'clean' : {
+      'pregif' : [ 'project/assets/tiles/lava*_*.png' ]
     }
   });
 
   grunt.loadNpmTasks('grunt-imagemagick');
+  grunt.loadNpmTasks('grunt-contrib-clean');
 
-  // Default task(s).
-  grunt.registerTask('default', ['imagemagick-resize']);
+  grunt.registerTask('images', ['imagemagick-resize', 'imagemagick-convert', 'clean:pregif']);
+  grunt.registerTask('default', []);
 
 };
