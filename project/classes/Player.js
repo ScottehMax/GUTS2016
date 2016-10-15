@@ -9,30 +9,6 @@ class Player extends Entity {
     this.socket = socket;
   }
 
-  move(dir) {
-    super.move(dir);
-  }
-
-  take_damage(dam) {
-    super.take_damage(dam);
-  }
-
-  equip_item(item) {
-    super.equip_item(item);
-  }
-
-  lose_item(item) {
-    super.lose_item(item);
-  }
-
-  attack(){
-    super.attack();
-  }
-
-  consume(item){
-    super.consume(item);
-  }
-
   erase() {
     this.dungeon.grid[this.y][this.x].occupied = false;
     delete this.dungeon.players[this.user.uuid];

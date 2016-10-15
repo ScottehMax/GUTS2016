@@ -8,8 +8,4 @@ class Sword extends Item{
     this.durability = dur;
     this.attack = a;
   }
-
-  degrade(){
-    super.degrade();
-  }
 }

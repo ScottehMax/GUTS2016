@@ -12,6 +12,7 @@ var randint = utils.randint;
 var distance = utils.distance;
 
 const MAX_TUNNELS = 2;
+const DRAW_DISTANCE = 5;
 
 class Dungeon {
   // hello darkness, my old friend
@@ -118,6 +119,12 @@ roomloop:
         this.grid[y_loc][x_loc] = new Tile('floor', this.rooms.length);
       }
     };
+
+    if (randint(1, 2) == 1) {
+      var lava_y = randint(y, y+height);
+      var lava_x = randint(x, x+width);
+      this.grid[lava_y][lava_x] = new Tile('lava', this.rooms.length);
+    }
 
     var room_obj = new Room(height, width, y, x, this.rooms.length);
     this.rooms.push(room_obj);
@@ -227,6 +234,7 @@ roomloop:
   }
 
   try_move(player, y, x) {
+    // returns true if player can move, false otherwise
     if (y > this.height - 1 || x > this.width - 1) return false;
     if (!!this.grid[y][x].occupied) {
       // interact with whatever entity is there lmao
@@ -246,17 +254,17 @@ roomloop:
     }
   }
 
-  view(y_pos, x_pos, distance) {
-    var hw = distance * 2 + 1;
-    var ly = y_pos - distance < 0 ? 0 : y_pos - distance;
-    var lx = x_pos - distance < 0 ? 0 : x_pos - distance;
-    var uy = y_pos + distance > this.height - 1 ? this.height - 1 : y_pos + distance;
-    var ux = x_pos + distance > this.width - 1? this.width - 1 : x_pos + distance;
+  view(y_pos, x_pos, draw_distance) {
+    var hw = draw_distance * 2 + 1;
+    var ly = y_pos - draw_distance < 0 ? 0 : y_pos - draw_distance;
+    var lx = x_pos - draw_distance < 0 ? 0 : x_pos - draw_distance;
+    var uy = y_pos + draw_distance > this.height - 1 ? this.height - 1 : y_pos + draw_distance;
+    var ux = x_pos + draw_distance > this.width - 1? this.width - 1 : x_pos + draw_distance;
     // console.log(hw.toString() + ' ' + ly.toString() + ' ' + lx.toString() + ' ' + uy.toString() + ' ' + ux.toString());
     var res = new Array(hw);
-    for (var y = 0; y < uy - ly; y++) {
+    for (var y = 0; y < uy - ly + 1; y++) {
       res[y] = new Array(hw);
-      for (var x = 0; x < ux - lx; x++) {
+      for (var x = 0; x < ux - lx + 1; x++) {
         res[y][x] = this.grid[y+ly][x+lx];
       }
     }
@@ -272,21 +280,41 @@ roomloop:
       }
       // console.log(dungeon.players);
       for (var player in dungeon.players) {
-        // dungeon.players[player].socket.sendUTF(dungeon.pretty_print(dungeon.grid, '<br>'));
-        dungeon.players[player].socket.sendUTF(dungeon.pretty_print(dungeon.view(dungeon.players[player].y, dungeon.players[player].x, 5), '<br>'));
+        // 
+        if (dungeon.players[player].overwatch) {
+          dungeon.players[player].socket.sendUTF(dungeon.pretty_print(dungeon.grid, '<br>'));
+        } else {
+          // dungeon.players[player].socket.sendUTF(dungeon.pretty_print(dungeon.view(dungeon.players[player].y, dungeon.players[player].x, DRAW_DISTANCE), '<br>'));  
+          dungeon.send_tilemap(dungeon.players[player]);
+        }
+        
         //console.log(dungeon.players[player].socket);
       }
     };
     setInterval(f, 100);
   }
 
+  send_tilemap(player) {
+    // player is a player obj, not a uuidc
+    var v = this.view(player.y, player.x, DRAW_DISTANCE);
+    for (var y = 0; y < v.length; y++) {
+      for (var x = 0; x < v[0].length; x++) {
+        if (v[y] == undefined) { v[y] = [] }
+        if (v[y][x] == undefined) { v[y][x] = {type: 'solid', sprite: 1, item: null}; continue; }
+        var cur = v[y][x];
+        v[y][x] = {type: cur.type, sprite: cur.sprite, item: cur.item};
+      }
+    }
+    player.socket.sendUTF(JSON.stringify(v));
+  }
+
   pretty_print(grid, separator) {
     if (separator == undefined) separator = '\n';
     var res = '';
-    for (var y = 0; y < grid.length - 1; y++) {
-      for (var x = 0; x < grid[0].length - 1; x++) {
-        if (grid[y] == undefined) { res += '▮'; continue; }
-        if (grid[y][x] == undefined) { res += '▮'; continue; }
+    for (var y = 0; y < grid.length; y++) {
+      for (var x = 0; x < grid[0].length; x++) {
+        if (grid[y] == undefined) { res += 'X'; continue; }
+        if (grid[y][x] == undefined) { res += 'X'; continue; }
         if (!!grid[y][x].occupied) {
           res += '@';
         } else {
@@ -305,6 +333,9 @@ roomloop:
             break;
           case 'tunnel':
             res += '.'; // change to _ for more visibility
+            break;
+          case 'lava':
+            res += '%';
             break;
           }
         }
@@ -327,10 +358,12 @@ class Room {
 }
 
 class Tile {
-  constructor(type, room_index) {
+  constructor(type, room_index, item) {
     this.type = type;
     this.occupied = false; // either false or an entity object or an item object... or something. fuck. FUCK.
     this.room_index = room_index;
+    if (this.item == undefined) this.item = null;
+    this.sprite = randint(1, 3);
   }
 }
 
