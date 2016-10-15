@@ -313,7 +313,6 @@ roomloop:
         if (v[y] == undefined) { v[y] = [] }
         if (v[y][x] == undefined) { v[y][x] = {type: 'solid', sprite: 1, item: null}; continue; }
         var cur = v[y][x];
-        console.log(typeof cur.occupied);
         v[y][x] = {type: cur.type, sprite: cur.sprite, item: cur.item, occupied: !!cur.occupied ? cur.occupied.constructor.name : false};
       }
     }
