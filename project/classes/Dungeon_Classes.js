@@ -295,8 +295,8 @@ roomloop:
         if (dungeon.players[player].overwatch) {
           dungeon.players[player].socket.sendUTF(dungeon.pretty_print(dungeon.grid, '<br>'));
         } else {
-          dungeon.players[player].socket.sendUTF(dungeon.pretty_print(dungeon.view(dungeon.players[player].y, dungeon.players[player].x, DRAW_DISTANCE), '<br>'));  
-          // dungeon.send_tilemap(dungeon.players[player]);
+          // dungeon.players[player].socket.sendUTF(dungeon.pretty_print(dungeon.view(dungeon.players[player].y, dungeon.players[player].x, DRAW_DISTANCE), '<br>'));  
+          dungeon.send_tilemap(dungeon.players[player]);
         }
         
         //console.log(dungeon.players[player].socket);
@@ -313,7 +313,8 @@ roomloop:
         if (v[y] == undefined) { v[y] = [] }
         if (v[y][x] == undefined) { v[y][x] = {type: 'solid', sprite: 1, item: null}; continue; }
         var cur = v[y][x];
-        v[y][x] = {type: cur.type, sprite: cur.sprite, item: cur.item, occupied: cur.occupied};
+        console.log(typeof cur.occupied);
+        v[y][x] = {type: cur.type, sprite: cur.sprite, item: cur.item, occupied: !!cur.occupied ? cur.occupied.constructor.name : false};
       }
     }
     player.socket.sendUTF(JSON.stringify(v));
