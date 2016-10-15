@@ -1,16 +1,65 @@
+body.debug {
+    background: pink!important;
+}
+
+body.debug #mask {
+    opacity: 0!important;
+}
+
 body {
     background: black;
+    color: white;
+}
+
+#intro {
+    height: 664px;
+    width: auto;
+    max-width: 664px;
+    margin: calc((100vh - 704px) /2) auto 0 auto;
+    position: relative;
+    transition: 0.2s all;
+    background-color: #333;
+    border: 1px solid #CCC;
+    padding: 20px;
+    overflow-y: scroll;
+}
+
+.intro__container {
+    min-height: 40px;
+    padding: 10px;
+    display: flex;
+}
+.intro__containerTitle {
+    min-height: 40px;
+    flex: 1;
+    vertical-align: middle;
+    font-size: 28px;
+    line-height: 40px;
+}
+.intro__containerTitle--small {
+    min-height: 40px;
+    flex: 1;
+    vertical-align: middle;
+    font-size: 22px;
+    line-height: 40px;
+}
+.intro__containerButton {
+    width: 100px;
 }
 
 #main {
     height: 704px;
     width: 704px;
-    margin: 0 auto 0 auto;
+    margin: calc((100vh - 704px) /2) auto 0 auto;
     position: relative;
     transition: 0.2s all;
+    display: none;
+    opacity: 0;
 }
 
 #main > canvas, #main > div {
+    width: 704px;
+    height: 704px;
     position: absolute;
 }
 
