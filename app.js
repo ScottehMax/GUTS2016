@@ -31,7 +31,7 @@ var wsServer = new WebSocketServer({
 
 
 Global.rooms[0] = new dungeon.Dungeon(40, 40, 9, 9);
-Global.rooms[1] = new dungeon.Dungeon(20, 20, 4, 4);
+Global.rooms[1] = new dungeon.Dungeon(20, 20, 3, 3);
 
 
 
