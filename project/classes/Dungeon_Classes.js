@@ -316,7 +316,8 @@ roomloop:
         v[y][x] = {type: cur.type, sprite: cur.sprite, item: cur.item, occupied: !!cur.occupied ? cur.occupied.constructor.name : false};
       }
     }
-    player.socket.sendUTF(JSON.stringify(v));
+    var res = {type: "map", map: v};
+    player.socket.sendUTF(JSON.stringify(res));
   }
 
   pretty_print(grid, separator) {
