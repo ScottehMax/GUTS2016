@@ -10,13 +10,13 @@ const ATTACK_XP = 35;
 const XP_LEVEL_UP_SCORE = 5;
 
 class Entity {
-  constructor(name, y, x, h, dungeon, start_sword, start_armour, level) {
+  constructor(name, y, x, h, floor, start_sword, start_armour, level) {
     this.name = name;
     this.y = y;
     this.x = x;
     this.bonus_health = 2 * level;
     this.health = h + this.bonus_health;
-    this.dungeon = dungeon;
+    this.floor = floor;
     this.items = {'sword': start_sword, 'armour': start_armour};
     this.level = level;
     this.direction = 'n';
@@ -25,52 +25,52 @@ class Entity {
 
   move(dir) {
     // Probably better way of implementing, this will move entity's position
-    // note: add try_move to dungeon
+    // note: add try_move to floor
     var ent;
 
     switch (dir) {
       case 'n':
         this.direction = 'n';
-        if((ent = this.dungeon.grid[this.y-1][this.x].occupied) instanceof Entity){
+        if(this.y > 0 && (ent = this.floor.grid[this.y-1][this.x].occupied) instanceof Entity){
           this.attack(ent);
         }
-        if (this.dungeon.try_move(this, this.y-1, this.x)) {
-          this.dungeon.grid[this.y][this.x].occupied = false;
+        if (this.floor.try_move(this, this.y-1, this.x)) {
+          this.floor.grid[this.y][this.x].occupied = false;
           this.y--;
-          this.dungeon.grid[this.y][this.x].occupied = this;
+          this.floor.grid[this.y][this.x].occupied = this;
         }
         break;
       case 'e':
         this.direction = 'e';
-        if((ent = this.dungeon.grid[this.y][this.x+1].occupied) instanceof Entity){
+        if(this.x < this.floor.width - 1 && (ent = this.floor.grid[this.y][this.x+1].occupied) instanceof Entity){
           this.attack(ent);
         }
-        if (this.dungeon.try_move(this, this.y, this.x+1)) {
-          this.dungeon.grid[this.y][this.x].occupied = false;
+        if (this.floor.try_move(this, this.y, this.x+1)) {
+          this.floor.grid[this.y][this.x].occupied = false;
           this.x++;
-          this.dungeon.grid[this.y][this.x].occupied = this;
+          this.floor.grid[this.y][this.x].occupied = this;
         }
         break;
       case 'w':
         this.direction = 'w';
-        if((ent = this.dungeon.grid[this.y][this.x-1].occupied) instanceof Entity){
+        if(this.x > 0 && (ent = this.floor.grid[this.y][this.x-1].occupied) instanceof Entity){
           this.attack(ent);
         }
-        if (this.dungeon.try_move(this, this.y, this.x-1)) {
-          this.dungeon.grid[this.y][this.x].occupied = false;
+        if (this.floor.try_move(this, this.y, this.x-1)) {
+          this.floor.grid[this.y][this.x].occupied = false;
           this.x--;
-          this.dungeon.grid[this.y][this.x].occupied = this;
+          this.floor.grid[this.y][this.x].occupied = this;
         }
         break;
       case 's':
         this.direction = 's';
-        if((ent = this.dungeon.grid[this.y+1][this.x].occupied) instanceof Entity){
+        if(this.y < this.floor.height - 1 && (ent = this.floor.grid[this.y+1][this.x].occupied) instanceof Entity){
           this.attack(ent);
         }
-        if (this.dungeon.try_move(this, this.y+1, this.x)) {
-          this.dungeon.grid[this.y][this.x].occupied = false;
+        if (this.floor.try_move(this, this.y+1, this.x)) {
+          this.floor.grid[this.y][this.x].occupied = false;
           this.y++;
-          this.dungeon.grid[this.y][this.x].occupied = this;
+          this.floor.grid[this.y][this.x].occupied = this;
         }
         break;
       default:
@@ -101,7 +101,7 @@ class Entity {
     ent.take_damage(weapon.attack);
     weapon.degrade();
     if(weapon.durability <= 0) this.lose_item('sword');
-    if(ent.health <= 0) this.xp += ATTACK_XP;
+    if(ent.health <= 0){ console.log(this.name + ' killed ' + ent.name); this.xp += ATTACK_XP;}
     if(this.xp >= (this.level * XP_LEVEL_UP_SCORE)) this.level_up();
   }
 
@@ -125,19 +125,14 @@ class Entity {
   die(){
     var i = this.items;
     // Drop any items the entity was carrying
-    // if(i['sword'] != null && i['armour'] == null) drop sword in current tile
-    // else if(i['sword'] == null && i['armour'] != null) drop armour in current tile
-    // else drop sword and armour in adjacent tiles
+    if(i['sword'] != null) console.log('DROPPED ' + i['sword'])// this.dungeon.grid[this.y][this.x].item(sword)
     // Erase entity
-    this.erase();
   }
 
   level_up(){
     // Player levels up which increased their health as well as resetting at the new maximum
     this.bonus_health = (++this.level) * 2;
     this.health = 100 + this.bonus_health;
-    for(var i = 0; i < 20; i++) console.log(this.health+ '\n');
-
   }
 
 }

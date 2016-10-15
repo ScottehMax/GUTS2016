@@ -81,12 +81,12 @@ wsServer.on('request', function (request) {
       connection.sendUTF(JSON.stringify(room_data));
       break;
     case 'join':
-      Global.rooms[cmd.room_index].spawn_player(connection.player);
+      Global.rooms[cmd.room_index].floors[0].spawn_player(connection.player);
       break;
     case 'create':
       var newdungeon = new dungeon.Dungeon(40, 40, 9, 9);
       Global.rooms[Object.keys(Global.rooms).length] = newdungeon;
-      newdungeon.spawn_player(connection.player);
+      newdungeon.floors[0].spawn_player(connection.player);
       break;
     }
     // var connection = request.accept('echo-protocol', request.origin);
