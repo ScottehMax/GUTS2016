@@ -74,6 +74,18 @@ wsServer.on('request', function (request) {
       // console.log(Global);
       Global.users[cmd.uuid].player.move(cmd['dir']);
       break;
+    case 'get_rooms':
+      var room_data = []
+      for (var room in Global.rooms) {
+        room_data.push({index: room, players: Global.rooms[room].players.length});
+      }
+      connection.sendUTF(JSON.stringify(room_data));
+    case 'join':
+      Global.rooms[cmd.room_index].spawn_player(connection.player);
+    case 'create':
+      var newdungeon = new dungeon.Dungeon(40, 40, 9, 9);
+      Global.rooms.push(newdungeon);
+      newdungeon.spawn_player(connection.player);
     }
     // var connection = request.accept('echo-protocol', request.origin);
     // var new_user = new user.User(connection);

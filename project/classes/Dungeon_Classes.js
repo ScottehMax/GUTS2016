@@ -25,6 +25,7 @@ class Dungeon {
     // room info stored here
     this.rooms = [];
     this.players = {};
+    this.npcs = {};
 
     // generate initial filled grid
     this.grid = new Array(height);
