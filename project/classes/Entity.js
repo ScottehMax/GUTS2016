@@ -31,7 +31,7 @@ class Entity {
     switch (dir) {
       case 'n':
         this.direction = 'n';
-        if((ent = this.floor.grid[this.y-1][this.x].occupied) instanceof Entity){
+        if(this.y > 0 && (ent = this.floor.grid[this.y-1][this.x].occupied) instanceof Entity){
           this.attack(ent);
         }
         if (this.floor.try_move(this, this.y-1, this.x)) {
@@ -42,7 +42,7 @@ class Entity {
         break;
       case 'e':
         this.direction = 'e';
-        if((ent = this.floor.grid[this.y][this.x+1].occupied) instanceof Entity){
+        if(this.x < this.floor.width - 1 && (ent = this.floor.grid[this.y][this.x+1].occupied) instanceof Entity){
           this.attack(ent);
         }
         if (this.floor.try_move(this, this.y, this.x+1)) {
@@ -53,7 +53,7 @@ class Entity {
         break;
       case 'w':
         this.direction = 'w';
-        if((ent = this.floor.grid[this.y][this.x-1].occupied) instanceof Entity){
+        if(this.x > 0 && (ent = this.floor.grid[this.y][this.x-1].occupied) instanceof Entity){
           this.attack(ent);
         }
         if (this.floor.try_move(this, this.y, this.x-1)) {
@@ -64,7 +64,7 @@ class Entity {
         break;
       case 's':
         this.direction = 's';
-        if((ent = this.floor.grid[this.y+1][this.x].occupied) instanceof Entity){
+        if(this.y < this.floor.height - 1 && (ent = this.floor.grid[this.y+1][this.x].occupied) instanceof Entity){
           this.attack(ent);
         }
         if (this.floor.try_move(this, this.y+1, this.x)) {
