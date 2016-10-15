@@ -11,6 +11,15 @@ module.exports = function(grunt) {
           filter : 'point',
           width : 64
         }
+      },
+      'sprites' : {
+        from : 'dev/sprites/',
+        to : 'project/assets/img/sprites/',
+        files : '*.png',
+        props : {
+          filter : 'point',
+          width : 64
+        }
       }
     },
     'imagemagick-convert' : {
