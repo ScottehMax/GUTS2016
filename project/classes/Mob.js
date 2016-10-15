@@ -31,7 +31,7 @@ class Mob extends Entity {
   search(){
     for(var m_y = this.y + VIEW_DIST; m_y >= this.y - VIEW_DIST; m_y--)
       for(var m_x = this.x - VIEW_DIST; m_x <= this.x + VIEW_DIST; m_x++)
-        if(this.dungeon.grid.occupied instanceof Player) return this.dungeon.grid.occupied;
+        if(this.dungeon.grid.occupied instanceof Player){this.hunting = true; return this.dungeon.grid.occupied;}
   }
 
   hunt(player) {
