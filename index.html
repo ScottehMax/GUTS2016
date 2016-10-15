@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>WebSocket Client</title>
+  <meta charset="UTF-8" />
+  <script>
+    "use strict";
+    var uuid;
+
+    window.addEventListener("load", function(event) {
+      // wait until the page is loaded to do this stuff
+      status = "Not Connected";
+      var url = "ws://localhost:9001";
+
+      // create socket object, everything will be sent over this
+      var socket = new WebSocket(url, "echo-protocol");
+
+      socket.addEventListener("open", function(event) {
+        // this runs when the socket is first opened
+        close.disabled = false;
+        send.disabled = false;
+        status.textContent = "Connected";
+      });
+
+      socket.addEventListener("message", function(event) {
+        // this runs when the socket receives a message from the server
+        try {
+          // res contains the json representation of the protocol
+          var res = JSON.parse(event.data);
+
+          // do protocol parsing here
+
+          if (res.uuid) {
+            // we've received a uuid, use that locally
+            uuid = res.uuid;
+            console.log(uuid + ' assigned!');
+          }
+
+        } catch (e) {
+          //console.log(e);
+        }
+        console.log('[SERVER] ' + event.data);
+      });
+
+      // when an error happens, this is triggered
+      socket.addEventListener("error", function(event) {
+        message.textContent = "Error: " + event;
+      });
+
+      socket.addEventListener("close", function(event) {
+        open.disabled = false;
+        status.textContent = "Not Connected";
+      });
+
+    });
+  </script>
+</head>
+<body>
+  <center>
+  <span id="fuck">Fuck: </span>
+  </center>
+</body>
+</html>
