@@ -9,6 +9,7 @@ y before x. height before width.
 
 
 var utils = require('../utils.js');
+var Global = require('../global.js');
 var randint = utils.randint;
 var distance = utils.distance;
 
@@ -230,7 +231,7 @@ roomloop:
   }
 
   spawn_player(player) {
-    this.players[player.user.uuid] = player;
+    this.players[player.uuid] = player;
     player.dungeon = this;
     var location = this.random_location(this.rooms[randint(0, this.rooms.length-1)]);
     while (this.grid[location[0]][location[1]].occupied) {
@@ -314,11 +315,11 @@ roomloop:
         if (v[y][x] == undefined) { v[y][x] = {type: 'solid', sprite: 1, item: null}; continue; }
         var cur = v[y][x];
         // v[y][x] = {type: cur.type, sprite: cur.sprite, item: cur.item, occupied: !!cur.occupied ? cur.occupied.constructor.name : false};
-        v[y][x] = {type: cur.type, sprite: cur.sprite, item: cur.item, occupied: cur.occupied};
+        v[y][x] = {type: cur.type, sprite: cur.sprite, item: cur.item, occupied: utils.simpleStringify(cur.occupied)};
       }
     }
     var res = {type: "map", map: v};
-    player.socket.sendUTF(JSON.stringify(res));
+    Global.users[player.uuid].socket.sendUTF(JSON.stringify(res));
   }
 
   pretty_print(grid, separator) {
