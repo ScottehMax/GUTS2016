@@ -7,6 +7,11 @@ var utils = require('./project/utils.js');
 var dungeon = require('./project/classes/Dungeon_Classes.js');
 var player = require('./project/classes/Player.js');
 
+// Set up web server
+var WEB_PORT = 3000;
+
+require('./project/server.js').startWebServer(WEB_PORT);
+
 var PORT = 9001;
 var MAX_USERS = 20;
 
@@ -20,7 +25,7 @@ var server = http.createServer(function (request, response) {
 });
 
 server.listen(PORT, function () {
-  console.log((new Date()) + ' | Server is listening on port ' + PORT);
+  console.log('[SCKT] WebSocket Server is listening on port ' + PORT);
 });
 
 // create websocket server

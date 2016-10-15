@@ -5,12 +5,15 @@
 var express = require('express');
 var app = express();
 
-app.use(express.static('assets'));
+exports.startWebServer = function(port) {
+  app.use(express.static('project/assets'));
 
-app.get('/', function(req, res) {
-  res.sendFile(__dirname + '/pages/game.html');
-});
+  app.get('/', function(req, res) {
+    res.sendFile(__dirname + '/pages/game.html');
+  });
 
-app.listen(3000);
+  app.listen(port);
 
-console.log("Running at Port 3000");
+  console.log('[WEB ] Web Server is listening on port ' + port);
+};
+
