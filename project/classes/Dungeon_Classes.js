@@ -6,6 +6,7 @@ x, y, etc, are generally locations on the grid.
 y before x. height before width.
 */
 
+var socket; //temporary.
 
 var utils = require('../utils.js');
 var randint = utils.randint;

@@ -6,6 +6,22 @@
   <script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
   <script>
     "use strict";
+    // helper functions for showing divs!
+    function show_roomlist() {
+      $('#welcome_step1').fadeOut(300).delay(0.3).css('height', 0);
+      $('#mainscreen').fadeOut(300).delay(0.3).css('height', 0);
+      setTimeout(function(){
+        $('#roomlist').css('top', 0).fadeIn(300).delay(0.3);
+        window.scrollTo(0, 1);
+      })
+    }
+
+    function get_rooms() {
+      socket.send(JSON.stringify({type: 'get_rooms'}));
+    }
+
+
+    var socket; // temporary
     var uuid;
 
     window.addEventListener("load", function(event) {
@@ -37,10 +53,9 @@
       var url = "ws://localhost:9001";
 
       // create socket object, everything will be sent over this
-      var socket = new WebSocket(url, "echo-protocol");
+      /*var */socket = new WebSocket(url, "echo-protocol");
 
       socket.addEventListener("open", function(event) {
-        socket.send(JSON.stringify({type: 'get_rooms'}));
         // this runs when the socket is first opened
       });
 
@@ -57,15 +72,17 @@
             uuid = res.uuid;
             console.log(uuid + ' assigned!');
           }
-          if (res.type) {
+          if (res.type != undefined) {
             switch(res.type) {
             case 'room_info':
+              // populate 
+              console.log(res);
               break;
             }
           }
 
         } catch (e) {
-          //console.log(e);
+          console.log(e);
         }
         $('#fuck').html(event.data);
         console.log('[SERVER] ' + event.data);
@@ -73,7 +90,7 @@
 
       // when an error happens, this is triggered
       socket.addEventListener("error", function(event) {
-        message.textContent = "Error: " + event;
+        // message.textContent = "Error: " + event;
       });
 
       socket.addEventListener("close", function(event) {
@@ -85,11 +102,11 @@
 </head>
 <body>
   <center>
-    <div id="mainscreen" style="display: none">
-      Welcome to Stockemon!
+    <div id="mainscreen" style="">
+      Welcome to Roguecedural!
       <div id="buttons">
-        <button id="create_battle" onClick="create_battle()">Create Dungeon</button>
-        <button id="join_battle" onClick="get_battles()">Join Dungeon</button>
+        <button id="create_room" onClick="create_room()">Create Dungeon</button>
+        <button id="join_room" onClick="get_rooms()">Join Dungeon</button>
       </div>
     </div>
     <div id="roomlist" style="display: none">
