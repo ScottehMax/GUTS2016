@@ -5,11 +5,10 @@
   <title>Game</title>
 
   <script type="text/javascript" src="/js/jquery-2.1.4.min.js"></script>
-  <script type="text/javascript" src="/js/keypress-2.1.4.min.js"></script>
   <link rel="stylesheet" href="/css/style.css" type="text/css" />
 </head>
 <body>
-  <div id="main" class="to-3d">
+  <div id="main" class="to3d">
     <canvas width="704" height="704" id="game__ground"></canvas>
     <div id="game__walls"></div>
     <canvas width="704" height="704" id="game__ceiling"></canvas>
@@ -17,6 +16,114 @@
   </div>
 
   <script type="text/javascript">
+    "use strict";
+    var uuid, images, map;
+
+    var canvas = {
+      'ground' : document.getElementById('game__ground').getContext('2d'),
+      'ceiling' : document.getElementById('game__ceiling').getContext('2d')
+    };
+
+    var sources = [
+      'stone1.png',
+      'stone2.png',
+      'stone3.png',
+      'wall1.png',
+      'wall2.png',
+      'wall3.png',
+      'lava1.gif',
+      'lava2.gif',
+      'lava3.gif',
+      'water1.png',
+      'water2.png',
+      'water3.png'
+    ];
+
+    window.addEventListener("load", function(event) {
+      // wait until the page is loaded to do this stuff
+      status = "Not Connected";
+      var url = "ws://localhost:9001";
+
+      loadImages(sources, function(imagesOut) {
+        document.onkeydown = checkKey;
+
+        function checkKey(e) {
+
+          e = e || window.event;
+          var msg = {uuid: uuid, type: 'move'};
+
+          if (e.keyCode == '38') {
+            msg.dir = 'n';
+          }
+          else if (e.keyCode == '40') {
+            msg.dir = 's';
+          }
+          else if (e.keyCode == '37') {
+            msg.dir = 'w';
+          }
+          else if (e.keyCode == '39') {
+            msg.dir = 'e';
+          } else {
+            return false;
+          }
+
+          socket.send(JSON.stringify(msg));
+
+        }
+
+        images = imagesOut;
+        // create socket object, everything will be sent over this
+        var socket = new WebSocket(url, "echo-protocol");
+
+        socket.addEventListener("open", function(event) {
+          // this runs when the socket is first opened
+        });
+
+        socket.addEventListener("message", function(event) {
+          // this runs when the socket receives a message from the server
+          try {
+            // res contains the json representation of the protocol
+            var res = JSON.parse(event.data);
+
+            if (res.uuid) {
+              // we've received a uuid, use that locally
+              uuid = res.uuid;
+              console.log(uuid + ' assigned!');
+            } else {
+              populate(res);
+            }
+
+          } catch (e) {
+            //console.log(e);
+          }
+          //console.log('[SERVER] ' + event.data);
+        });
+
+        // when an error happens, this is triggered
+        socket.addEventListener("error", function(event) {
+          message.textContent = "Error: " + event;
+        });
+
+        socket.addEventListener("close", function(event) {
+          open.disabled = false;
+        });
+      });
+    });
+
+    function arraysEqual(a, b) {
+      if (a === b) return true;
+      if (a == null || b == null) return false;
+      if (a.length != b.length) return false;
+
+      // If you don't care about the order of the elements inside
+      // the array, you should sort both arrays here.
+
+      for (var i = 0; i < a.length; ++i) {
+        if (a[i] !== b[i]) return false;
+      }
+      return true;
+    }
+
     function loadImages(sources, callback) {
       var images = {};
       var loadedImages = 0;
@@ -33,103 +140,33 @@
       }
     }
 
-    var listener = new window.keypress.Listener();
-
-    listener.simple_combo("up", function(){
-      console.log("moved up");
-      startBoard = [
-        [1,0,0,1,1,1,1,1,1,1,1],
-        [1,1,1,1,1,0,0,0,0,1,1],
-        [1,0,0,0,0,0,0,0,0,1,1],
-        [1,0,0,0,0,0,0,0,1,1,1],
-        [1,0,0,0,0,0,0,0,1,1,1],
-        [1,1,1,0,0,0,0,1,1,1,1],
-        [1,1,1,0,0,0,1,1,1,1,1],
-        [1,1,1,0,0,0,0,1,1,1,1],
-        [1,1,1,0,0,0,0,1,1,1,1],
-        [1,1,1,0,0,0,0,1,1,1,1],
-        [1,1,1,0,0,0,0,0,1,1,1]
-      ];
-      populate(startBoard);
-    });
-    listener.simple_combo("down", function(){
-      console.log("moved down");
-      startBoard = [
-        [1,1,1,1,1,0,0,0,0,1,1],
-        [1,0,0,0,0,0,0,0,0,1,1],
-        [1,0,0,0,0,0,0,0,1,1,1],
-        [1,0,0,0,0,0,0,0,1,1,1],
-        [1,1,1,0,0,0,0,1,1,1,1],
-        [1,1,1,0,0,0,1,1,1,1,1],
-        [1,1,1,0,0,0,0,1,1,1,1],
-        [1,1,1,0,0,0,0,1,1,1,1],
-        [1,1,1,0,0,0,0,1,1,1,1],
-        [1,1,1,0,0,0,0,0,1,1,1],
-        [1,1,1,0,0,0,0,0,1,1,1]
-      ];
-      populate(startBoard);
-    });
-    listener.simple_combo("left", function(){
-      console.log("moved left");
-    });
-    listener.simple_combo("right", function(){
-      console.log("moved right");
-    });
-
-    var canvas = {
-      'ground' : document.getElementById('game__ground').getContext('2d'),
-      'ceiling' : document.getElementById('game__ceiling').getContext('2d')
-    };
-
-    var sources = [
-      'stone1.png',
-      'stone2.png',
-      'stone3.png',
-      'wall1.png',
-      'wall2.png',
-      'wall3.png',
-      'lava1.gif'
-    ];
-
-    var startBoard = [
-      [1,1,1,1,1,0,0,0,0,1,1],
-      [1,0,0,0,0,0,0,0,0,1,1],
-      [1,0,0,0,0,0,0,0,1,1,1],
-      [1,0,0,0,0,0,0,0,1,1,1],
-      [1,1,1,0,0,0,0,1,1,1,1],
-      [1,1,1,0,0,0,1,1,1,1,1],
-      [1,1,1,0,0,0,0,1,1,1,1],
-      [1,1,1,0,0,0,0,1,1,1,1],
-      [1,1,1,0,0,0,0,1,1,1,1],
-      [1,1,1,0,0,0,0,0,1,1,1],
-      [1,1,1,0,0,0,0,0,1,1,1],
-    ];
-
-    var images;
-
-    loadImages(sources, function(imagesOut) {
-      images = imagesOut;
-
-      populate(startBoard);
-    });
-
     function populate(board) {
+      if (board === map) return false;
+      map = board;
+
+      console.log('populating');
+      $('#game__walls').empty();
+      canvas.ceiling.clearRect(0, 0, 704, 704);
+      canvas.ground.clearRect(0, 0, 704, 704);
+
       for (var i = 0; i < 11; i++) {
         var row = board[i];
         for (var j = 0; j < 11; j++) {
-          switch (row[j]) {
-            case 0:
-              canvas.ground.drawImage(images.stone1, j * 64, i * 64);
-              break;
-            case 1:
-              canvas.ceiling.drawImage(images.wall1, j * 64, i * 64);
+          if (row[j].type === 'solid') {
+            canvas.ceiling.drawImage(images['wall' + row[j].sprite], j * 64, i * 64);
 
-              // draw wall
-              if (i < 10 && board[i+1][j] === 0) {
-                $('#game__walls').append('<div class="wall" style="bottom: ' + (11 - i - 1) * 64 + 'px; left: ' + j * 64 + 'px"><img src="/img/tiles/stone2.png"></div>');
-              }
-
-              break;
+            // draw wall
+            if (i < 10 && board[i+1][j].type !== 'solid') {
+              $('#game__walls').append('<div class="wall" style="bottom: ' + (11 - i - 1) * 64 + 'px; left: ' + j * 64 + 'px"><img src="/img/tiles/stone2.png"></div>');
+            }
+          } else if (row[j].type === 'tunnel' || row[j].type  === 'floor') {
+            canvas.ground.drawImage(images['stone' + row[j].sprite], j * 64, i * 64);
+          } else if (row[j].type === 'lava') {
+            canvas.ground.drawImage(images['lava' + row[j].sprite], j * 64, i * 64);
+          } else if (row[j].type === 'water' || row[j].type  === 'closed_door') {
+            canvas.ground.drawImage(images['water' + row[j].sprite], j * 64, i * 64);
+          } else if (row[j].type === 'open_door') {
+            canvas.ground.drawImage(images['stone3'], j * 64, i * 64);
           }
         }
       }
