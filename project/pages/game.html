@@ -16,33 +16,34 @@
   </div>
 
   <script type="text/javascript">
-    "use strict";
-    var uuid, images, map;
-
-    var canvas = {
-      'ground' : document.getElementById('game__ground').getContext('2d'),
-      'ceiling' : document.getElementById('game__ceiling').getContext('2d')
-    };
-
-    var sources = [
-      'stone1.png',
-      'stone2.png',
-      'stone3.png',
-      'wall1.png',
-      'wall2.png',
-      'wall3.png',
-      'lava1.gif',
-      'lava2.gif',
-      'lava3.gif',
-      'water1.png',
-      'water2.png',
-      'water3.png'
-    ];
-
     window.addEventListener("load", function(event) {
       // wait until the page is loaded to do this stuff
       status = "Not Connected";
       var url = "ws://localhost:9001";
+
+      var uuid, images, map;
+
+      "use strict";
+
+      var canvas = {
+        'ground' : document.getElementById('game__ground').getContext('2d'),
+        'ceiling' : document.getElementById('game__ceiling').getContext('2d')
+      };
+
+      var sources = [
+        'stone1.png',
+        'stone2.png',
+        'stone3.png',
+        'wall1.png',
+        'wall2.png',
+        'wall3.png',
+        'lava1.gif',
+        'lava2.gif',
+        'lava3.gif',
+        'water1.png',
+        'water2.png',
+        'water3.png'
+      ];
 
       loadImages(sources, function(imagesOut) {
         document.onkeydown = checkKey;
@@ -108,69 +109,69 @@
           open.disabled = false;
         });
       });
-    });
 
-    function arraysEqual(a, b) {
-      if (a === b) return true;
-      if (a == null || b == null) return false;
-      if (a.length != b.length) return false;
+      function arraysEqual(a, b) {
+        if (a === b) return true;
+        if (a == null || b == null) return false;
+        if (a.length != b.length) return false;
 
-      // If you don't care about the order of the elements inside
-      // the array, you should sort both arrays here.
+        // If you don't care about the order of the elements inside
+        // the array, you should sort both arrays here.
 
-      for (var i = 0; i < a.length; ++i) {
-        if (a[i] !== b[i]) return false;
+        for (var i = 0; i < a.length; ++i) {
+          if (a[i] !== b[i]) return false;
+        }
+        return true;
       }
-      return true;
-    }
 
-    function loadImages(sources, callback) {
-      var images = {};
-      var loadedImages = 0;
-      var numImages = sources.length;
-      for(var i = 0; i < sources.length; i++) {
-        var imgName = sources[i].split('.')[0];
-        images[imgName] = new Image();
-        images[imgName].onload = function() {
-          if(++loadedImages >= numImages) {
-            callback(images);
-          }
-        };
-        images[imgName].src = '/img/tiles/' + sources[i];
-      }
-    }
-
-    function populate(board) {
-      if (board === map) return false;
-      map = board;
-
-      console.log('populating');
-      $('#game__walls').empty();
-      canvas.ceiling.clearRect(0, 0, 704, 704);
-      canvas.ground.clearRect(0, 0, 704, 704);
-
-      for (var i = 0; i < 11; i++) {
-        var row = board[i];
-        for (var j = 0; j < 11; j++) {
-          if (row[j].type === 'solid') {
-            canvas.ceiling.drawImage(images['wall' + row[j].sprite], j * 64, i * 64);
-
-            // draw wall
-            if (i < 10 && board[i+1][j].type !== 'solid') {
-              $('#game__walls').append('<div class="wall" style="bottom: ' + (11 - i - 1) * 64 + 'px; left: ' + j * 64 + 'px"><img src="/img/tiles/stone2.png"></div>');
+      function loadImages(sources, callback) {
+        var images = {};
+        var loadedImages = 0;
+        var numImages = sources.length;
+        for(var i = 0; i < sources.length; i++) {
+          var imgName = sources[i].split('.')[0];
+          images[imgName] = new Image();
+          images[imgName].onload = function() {
+            if(++loadedImages >= numImages) {
+              callback(images);
             }
-          } else if (row[j].type === 'tunnel' || row[j].type  === 'floor') {
-            canvas.ground.drawImage(images['stone' + row[j].sprite], j * 64, i * 64);
-          } else if (row[j].type === 'lava') {
-            canvas.ground.drawImage(images['lava' + row[j].sprite], j * 64, i * 64);
-          } else if (row[j].type === 'water' || row[j].type  === 'closed_door') {
-            canvas.ground.drawImage(images['water' + row[j].sprite], j * 64, i * 64);
-          } else if (row[j].type === 'open_door') {
-            canvas.ground.drawImage(images['stone3'], j * 64, i * 64);
+          };
+          images[imgName].src = '/img/tiles/' + sources[i];
+        }
+      }
+
+      function populate(board) {
+        if (board === map) return false;
+        map = board;
+
+        console.log('populating');
+        $('#game__walls').empty();
+        canvas.ceiling.clearRect(0, 0, 704, 704);
+        canvas.ground.clearRect(0, 0, 704, 704);
+
+        for (var i = 0; i < 11; i++) {
+          var row = board[i];
+          for (var j = 0; j < 11; j++) {
+            if (row[j].type === 'solid') {
+              canvas.ceiling.drawImage(images['wall' + row[j].sprite], j * 64, i * 64);
+
+              // draw wall
+              if (i < 10 && board[i+1][j].type !== 'solid') {
+                $('#game__walls').append('<div class="wall" style="bottom: ' + (11 - i - 1) * 64 + 'px; left: ' + j * 64 + 'px"><img src="/img/tiles/stone2.png"></div>');
+              }
+            } else if (row[j].type === 'tunnel' || row[j].type  === 'floor') {
+              canvas.ground.drawImage(images['stone' + row[j].sprite], j * 64, i * 64);
+            } else if (row[j].type === 'lava') {
+              canvas.ground.drawImage(images['lava' + row[j].sprite], j * 64, i * 64);
+            } else if (row[j].type === 'water' || row[j].type  === 'closed_door') {
+              canvas.ground.drawImage(images['water' + row[j].sprite], j * 64, i * 64);
+            } else if (row[j].type === 'open_door') {
+              canvas.ground.drawImage(images['stone3'], j * 64, i * 64);
+            }
           }
         }
       }
-    }
+    });
   </script>
 </body>
 </html>
