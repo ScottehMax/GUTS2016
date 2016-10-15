@@ -16,6 +16,7 @@ class Entity {
     this.x = x;
     this.bonus_health = 2 * level;
     this.health = h + this.bonus_health;
+    this.maxhealth = h + this.bonus_health;
     this.floor = floor;
     this.items = {'sword': start_sword, 'armour': start_armour};
     this.level = level;
@@ -110,11 +111,11 @@ class Entity {
     var i = this.items;
     if(item instanceof Sword && i['sword'] == null) i['sword'] = item;
     if(item instanceof Armour && i['armour'] == null) i['armour'] = item;
-    if(item instanceof Heart && this.health < 100){
-      if(this.health+item.points < 100)
+    if(item instanceof Heart && this.health < this.maxhealth){
+      if(this.health+item.points < this.maxhealth)
         this.health+=item.points;
       else
-        this.health = 100;
+        this.health = this.maxhealth;
     }
   }
 
@@ -132,7 +133,7 @@ class Entity {
   level_up(){
     // Player levels up which increased their health as well as resetting at the new maximum
     this.bonus_health = (++this.level) * 2;
-    this.health = 100 + this.bonus_health;
+    this.maxhealth = this.maxhealth + this.bonus_health;
   }
 
 }

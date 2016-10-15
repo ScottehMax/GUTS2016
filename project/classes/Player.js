@@ -18,7 +18,7 @@ class Player extends Entity {
   }
 
   die() {
-    super();
+    super.die();
     this.erase();
   }
 }
