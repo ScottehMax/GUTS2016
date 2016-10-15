@@ -8,12 +8,14 @@ var message = require('../utils.js').sendMessage;
 const ATTACK_XP = 35;
 const XP_LEVEL_UP_SCORE = 5;
 
+var Global = require('../global.js');
 /*
  Player is a controllable entity
  */
 class Player extends Entity {
   constructor(name, y, x, h, floor, start_sword, start_armour, level) {
     super(name, y, x, h, floor, start_sword,  start_armour, level);
+    this.alive = true;
   }
   
   take_damage(ent, dam) {
@@ -82,6 +84,8 @@ class Player extends Entity {
     message(this, 'You died.', 2);
     super.die();
     this.erase();
+    this.alive = false;
+    Global.users[this.uuid].socket.sendUTF(JSON.stringify({"type": "death"}));
   }
 
   level_up(){

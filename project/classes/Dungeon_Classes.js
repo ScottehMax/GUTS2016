@@ -10,6 +10,8 @@ y before x. height before width.
 
 var utils = require('../utils.js');
 var Global = require('../global.js');
+var Mob = require('./Mob.js').Mob;
+var Player = require('./Player.js').Player;
 var randint = utils.randint;
 var distance = utils.distance;
 
@@ -312,8 +314,23 @@ class Floor {
     }
   }
 
+  spawn_mob() {
+    var location = this.random_location(this.rooms[randint(0, this.rooms.length-1)]);
+    while (this.grid[location[0]][location[1]].occupied) {
+      location = this.random_location(this.rooms[randint(0, this.rooms.length-1)]);
+    }
+    var mob = new Mob('bob', location[0], location[1], 20, this, null, null, 1);
+    this.npcs[Object.keys(this.npcs).length] = mob;
+    mob.y = location[0];
+    mob.x = location[1];
+    if (!this.grid[mob.y][mob.x].occupied) {
+      this.grid[mob.y][mob.x].occupied = mob;
+    }
+  }
+
   try_move(player, y, x) {
     // returns true if player can move, false otherwise
+    if (!player.alive) return false;
     if (y > this.height - 1 || x > this.width - 1) return false;
     if (!!this.grid[y][x].occupied) {
       console.log(this.grid[y][x].occupied);
@@ -331,27 +348,34 @@ class Floor {
       case 'floor':
       case 'tunnel':
         return true;
+      case 'lava':
+        player.burning = true;
+        return true;
       case 'up_stairs':
         // go upstairs
-        this.grid[player.y][player.x].occupied = false;
-        delete this.players[player.uuid];
-        this.dungeon.floors[this.index - 1].spawn_player(player, [y, x]);
-        return false;
+        if (player instanceof Player) {
+          this.grid[player.y][player.x].occupied = false;
+          delete this.players[player.uuid];
+          this.dungeon.floors[this.index - 1].spawn_player(player, [y, x]);
+          return false;
+        } else { return true; }
       case 'down_stairs':
-        // console.log(Object.keys(this.dungeon.floors).length);
-        // console.log(this.index);
-        if (Object.keys(this.dungeon.floors).length == this.index + 1) {
-          var room = this.rooms[this.grid[y][x].room_index];
-          this.dungeon.add_floor([room.height, room.width, room.y, room.x], [y, x]);
-          
-        }
-        // move player down a floor
-        this.grid[player.y][player.x].occupied = false;
-        // this.players = {};
-        delete this.players[player.uuid];
-        this.dungeon.floors[this.index + 1].spawn_player(player, [y, x]);
-        // go downstairs, if it doesn't exist, make a new floor
-        return false;
+        if (player instanceof Player) {
+          // console.log(Object.keys(this.dungeon.floors).length);
+          // console.log(this.index);
+          if (Object.keys(this.dungeon.floors).length == this.index + 1) {
+            var room = this.rooms[this.grid[y][x].room_index];
+            this.dungeon.add_floor([room.height, room.width, room.y, room.x], [y, x]);
+            
+          }
+          // move player down a floor
+          this.grid[player.y][player.x].occupied = false;
+          // this.players = {};
+          delete this.players[player.uuid];
+          this.dungeon.floors[this.index + 1].spawn_player(player, [y, x]);
+          // go downstairs, if it doesn't exist, make a new floor
+          return false;
+        } else { return true; }
     }
   }
 
@@ -373,15 +397,32 @@ class Floor {
   }
 
   tick() {
+    // a tick is 1/10 second (ideally)
     var floor = this;
     var f = function() {
+      // spawn a mob every 20s on average
+      if (randint(1, 200) == 1) {
+        floor.spawn_mob();
+      }
       // loop over npcs here and make them do shit
       for (var npc in floor.npcs) {
-        npc.do_shit();
+        if (randint(1, 5) == 1) {
+          floor.npcs[npc].idle();
+        }
       }
       // console.log(floor.players);
       for (var player in floor.players) {
+        console.log(floor.players[player].health);
         // 
+        // burn hurts 1 dmg every 2 seconds and lasts for 10 seconds on average
+        if (floor.players[player].burning) {
+          if (randint(1, 20) == 1) {
+            floor.players[player].health -= 1;
+          } 
+          if (randint(1, 100) == 1) {
+            floor.players[player].burning = false;
+          }
+        }
         if (floor.players[player].overwatch) {
           //Global.users[floor.players[player].uuid].socket.sendUTF(floor.pretty_print(floor.grid, '<br>'));
         } else {
@@ -419,7 +460,11 @@ class Floor {
         if (grid[y] == undefined) { res += 'X'; continue; }
         if (grid[y][x] == undefined) { res += 'X'; continue; }
         if (!!grid[y][x].occupied) {
-          res += '@';
+          if (grid[y][x].occupied instanceof Player) {
+            res += '@';
+          } else if (grid[y][x].occupied instanceof Mob) {
+            res += '&';
+          }
         } else {
           switch (grid[y][x].type) {
           case 'solid':

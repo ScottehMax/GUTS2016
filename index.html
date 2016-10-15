@@ -10,8 +10,16 @@
     function show_roomlist() {
       $('#welcome_step1').fadeOut(300).delay(0.3).css('height', 0);
       $('#mainscreen').fadeOut(300).delay(0.3).css('height', 0);
+      $('#fuck').fadeOut(300).delay(0.3).css('height', 0);
       setTimeout(function(){
         $('#roomlist').css('top', 0).fadeIn(300).delay(0.3);
+        window.scrollTo(0, 1);
+      })
+    }
+
+    function show_game() {
+      setTimeout(function(){
+        $('#fuck').css('top', 0).fadeIn(300).delay(0.3);
         window.scrollTo(0, 1);
       })
     }
@@ -31,12 +39,14 @@
         $('#roomlist').css('top', 0).fadeOut(300).delay(0.3);
         window.scrollTo(0, 1);
       })
+      show_game();
       socket.send(JSON.stringify({uuid: uuid, type: 'join', room_index: index}));
     }
 
 
     var socket; // temporary
     var uuid;
+    var alive = false;
 
     window.addEventListener("load", function(event) {
       document.onkeydown = checkKey;
@@ -59,7 +69,9 @@
           msg.dir = 'e';
         }
 
-        socket.send(JSON.stringify(msg));
+        if (alive) {
+          socket.send(JSON.stringify(msg));
+        }
 
       }
       // wait until the page is loaded to do this stuff
@@ -99,11 +111,14 @@
               $('#roomlist').html(result_string);
               console.log(cmd);
               break;
+            case 'death':
+              show_roomlist();
             }
           }
 
         } catch (e) {
           $('#fuck').html(event.data);
+          alive = true;
           // console.log(e);
         }
         console.log('[SERVER] ' + event.data);

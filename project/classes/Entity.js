@@ -5,6 +5,7 @@
  */
 
 var Sword = require('./Sword.js').Sword;
+var Mob = require('./Mob.js').Mob;
 
 const ATTACK_XP = 35;
 const XP_LEVEL_UP_SCORE = 5;
@@ -134,7 +135,11 @@ class Entity {
   }
 
   erase() {
-    null;
+    if (this.floor != null) {
+      this.floor.grid[this.y][this.x].occupied = false;
+      if (this instanceof Mob) delete this.floor.npcs[this.uuid];
+      console.log(this.uuid + ' has perished');
+    }
   }
 
   die(){
@@ -142,6 +147,7 @@ class Entity {
     // Drop any items the entity was carrying
     if(i['sword'] != null) console.log('DROPPED ' + i['sword'])// this.dungeon.grid[this.y][this.x].item(sword)
     // Erase entity
+    this.erase()
   }
 
   level_up(){
