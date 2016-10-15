@@ -29,12 +29,6 @@ var wsServer = new WebSocketServer({
   autoAcceptConnections: false
 });
 
-
-Global.rooms[0] = new dungeon.Dungeon(40, 40, 9, 9);
-Global.rooms[1] = new dungeon.Dungeon(20, 20, 3, 3);
-
-
-
 wsServer.on('request', function (request) {
   console.log('someone is connecting!');
 
