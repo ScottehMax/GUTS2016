@@ -1,24 +1,37 @@
+import {Player} from "./Player";
+"use strict";
 /*
  Mobs are entities not controlled by users
  and are hostile towards players
  */
+
+const VIEW_DIST = 5;
 class Mob extends Entity {
-  constructor(name, y, x, h, start_sword, start_armour, level) {
-    super(name, y, x, h, start_sword, start_armour, level);
+  constructor(name, y, x, h, dungeon, start_sword, start_armour, level) {
+    super(name, y, x, h, dungeon, start_sword, start_armour, level);
     this.hunting = false;
   }
 
   idle() {
     // Mob aimlessly wanders, searching for player
+    var player;
     this.hunting = false;
     var directions = ['n', 'e', 'w', 's'];
-    var dir = Math.random() * (directions.length - 0);
+    var dir = Math.random() * (directions.length);
     dir = directions[dir];
     this.move(dir);
     // while this.hunting is false then idle
-    // search for players while idle
-    // when player is found go into hunt mode, this.hunting = true
-    this.hunting = true; // delete line when idle has been implemented fully, this just prevents infinite loop
+    while(!this.hunting) {
+      // search for players while idle
+      player = this.search();
+    }
+    this.hunt(player);
+  }
+
+  search(){
+    for(var m_y = this.y + VIEW_DIST; m_y >= this.y - VIEW_DIST; m_y--)
+      for(var m_x = this.x - VIEW_DIST; m_x <= this.x + VIEW_DIST; m_x++)
+        if(this.dungeon.grid.occupied instanceof Player) return this.dungeon.grid.occupied;
   }
 
   hunt(player) {
