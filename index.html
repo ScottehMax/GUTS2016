@@ -3,11 +3,35 @@
 <head>
   <title>WebSocket Client</title>
   <meta charset="UTF-8" />
+  <script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
   <script>
     "use strict";
     var uuid;
 
     window.addEventListener("load", function(event) {
+      document.onkeydown = checkKey;
+
+      function checkKey(e) {
+
+        e = e || window.event;
+        var msg = {uuid: uuid, type: 'move'};
+
+        if (e.keyCode == '38') {
+          msg.dir = 'n';
+        }
+        else if (e.keyCode == '40') {
+          msg.dir = 's';
+        }
+        else if (e.keyCode == '37') {
+          msg.dir = 'w';
+        }
+        else if (e.keyCode == '39') {
+          msg.dir = 'e';
+        }
+
+        socket.send(JSON.stringify(msg));
+
+      }
       // wait until the page is loaded to do this stuff
       status = "Not Connected";
       var url = "ws://localhost:9001";
@@ -17,9 +41,6 @@
 
       socket.addEventListener("open", function(event) {
         // this runs when the socket is first opened
-        close.disabled = false;
-        send.disabled = false;
-        status.textContent = "Connected";
       });
 
       socket.addEventListener("message", function(event) {
@@ -39,6 +60,7 @@
         } catch (e) {
           //console.log(e);
         }
+        $('#fuck').html(event.data);
         console.log('[SERVER] ' + event.data);
       });
 
@@ -49,7 +71,6 @@
 
       socket.addEventListener("close", function(event) {
         open.disabled = false;
-        status.textContent = "Not Connected";
       });
 
     });
@@ -57,7 +78,8 @@
 </head>
 <body>
   <center>
-  <span id="fuck">Fuck: </span>
+  <div id="board"></div>
+  <span id="fuck" style="font-family: Courier;letter-spacing: 8px;">Fuck: </span>
   </center>
 </body>
 </html>

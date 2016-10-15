@@ -4,17 +4,17 @@ Some conventions:
 Height and width are lengths.
 x, y, etc, are generally locations on the grid.
 y before x. height before width.
-
 */
 
 
-var utils = require('./js/utils.js');
+var utils = require('../utils.js');
 var randint = utils.randint;
 var distance = utils.distance;
 
 const MAX_TUNNELS = 2;
 
 class Dungeon {
+  // hello darkness, my old friend
   constructor(height, width, max_h, max_w) {
     this.height = height;
     this.width = width;
@@ -23,6 +23,7 @@ class Dungeon {
     this.max_w = max_w;
     // room info stored here
     this.rooms = [];
+    this.players = {};
 
     // generate initial filled grid
     this.grid = new Array(height);
@@ -32,6 +33,14 @@ class Dungeon {
         this.grid[y][x] = new Tile('solid', undefined);
       }
     }
+
+    this.add_starting_room();
+    for (var i = 0; i < 10; i++) {
+      this.add_subsequent_room();
+      this.create_tunnel(this.rooms[this.rooms.length - 1], this.rooms[this.closest_room(this.rooms[this.rooms.length - 1])]);
+    };
+
+    this.tick();
   };
 
 
@@ -142,7 +151,7 @@ roomloop:
       }
     }
     return closestroomindex;
-  }
+  };
 
   create_tunnel(room1, room2) {
     // pick random points inside each room
@@ -205,32 +214,102 @@ roomloop:
         }
       }
     }
+  };
+
+  spawn_player(player) {
+    this.players[player.user.uuid] = player;
+    var location = this.rooms[randint(0, this.rooms.length-1)].centre;
+    player.y = location[0];
+    player.x = location[1];
+    if (!this.grid[player.y][player.x].occupied) {
+      this.grid[player.y][player.x].occupied = player;
+    }
   }
 
+  try_move(player, y, x) {
+    if (y > this.height - 1 || x > this.width - 1) return false;
+    if (!!this.grid[y][x].occupied) {
+      // interact with whatever entity is there lmao
+      return false;
+    }
+    switch(this.grid[y][x].type) {
+      case 'solid':
+        return false;
+      case 'closed_door':
+        this.grid[y][x].type = 'open_door';
+        // open the door
+        return false;
+      case 'open_door':
+      case 'floor':
+      case 'tunnel':
+        return true;
+    }
+  }
 
-  pretty_print() {
+  view(y_pos, x_pos, distance) {
+    var hw = distance * 2 + 1;
+    var ly = y_pos - distance < 0 ? 0 : y_pos - distance;
+    var lx = x_pos - distance < 0 ? 0 : x_pos - distance;
+    var uy = y_pos + distance > this.height - 1 ? this.height - 1 : y_pos + distance;
+    var ux = x_pos + distance > this.width - 1? this.width - 1 : x_pos + distance;
+    // console.log(hw.toString() + ' ' + ly.toString() + ' ' + lx.toString() + ' ' + uy.toString() + ' ' + ux.toString());
+    var res = new Array(hw);
+    for (var y = 0; y < uy - ly; y++) {
+      res[y] = new Array(hw);
+      for (var x = 0; x < ux - lx; x++) {
+        res[y][x] = this.grid[y+ly][x+lx];
+      }
+    }
+    return res;
+  }
+
+  tick() {
+    var dungeon = this;
+    var f = function() {
+      // loop over npcs here and make them do shit
+      for (var npc in dungeon.npcs) {
+        npc.do_shit();
+      }
+      // console.log(dungeon.players);
+      for (var player in dungeon.players) {
+        // dungeon.players[player].socket.sendUTF(dungeon.pretty_print(dungeon.grid, '<br>'));
+        dungeon.players[player].socket.sendUTF(dungeon.pretty_print(dungeon.view(dungeon.players[player].y, dungeon.players[player].x, 5), '<br>'));
+        //console.log(dungeon.players[player].socket);
+      }
+    };
+    setInterval(f, 100);
+  }
+
+  pretty_print(grid, separator) {
+    if (separator == undefined) separator = '\n';
     var res = '';
-    for (var y = 0; y < this.height; y++) {
-      for (var x = 0; x < this.width; x++) {
-        switch (this.grid[y][x].type) {
-        case 'solid':
-          res += '#';
-          break;
-        case 'floor':
-          res += '.';
-          break;
-        case 'closed_door':
-          res += '+'
-          break;
-        case 'open_door':
-          res += '\''
-          break;
-        case 'tunnel':
-          res += '.'; // change to _ for more visibility
-          break;
+    for (var y = 0; y < grid.length - 1; y++) {
+      for (var x = 0; x < grid[0].length - 1; x++) {
+        if (grid[y] == undefined) { res += '▮'; continue; }
+        if (grid[y][x] == undefined) { res += '▮'; continue; }
+        if (!!grid[y][x].occupied) {
+          res += '@';
+        } else {
+          switch (grid[y][x].type) {
+          case 'solid':
+            res += '#';
+            break;
+          case 'floor':
+            res += '.';
+            break;
+          case 'closed_door':
+            res += '+'
+            break;
+          case 'open_door':
+            res += '\''
+            break;
+          case 'tunnel':
+            res += '.'; // change to _ for more visibility
+            break;
+          }
         }
       }
-      res += '\n';
+      res += separator;
     }
     return res;
   };
@@ -250,23 +329,26 @@ class Room {
 class Tile {
   constructor(type, room_index) {
     this.type = type;
+    this.occupied = false; // either false or an entity object or an item object... or something. fuck. FUCK.
     this.room_index = room_index;
   }
 }
 
 // tests
 
-var dungeon = new Dungeon(40, 100, 10, 10);
-dungeon.add_starting_room();
+// var dungeon = new Dungeon(20, 20, 10, 10);
+// dungeon.add_starting_room();
 
-console.log(dungeon.pretty_print());
+// console.log(dungeon.pretty_print());
 
-for (var i = 0; i < 20; i++) {
-  dungeon.add_subsequent_room();
-  console.log(dungeon.pretty_print());
-  dungeon.create_tunnel(dungeon.rooms[dungeon.rooms.length - 1], dungeon.rooms[dungeon.closest_room(dungeon.rooms[dungeon.rooms.length - 1])]);
-  console.log(dungeon.pretty_print());
-}
+// for (var i = 0; i < 5; i++) {
+//   dungeon.add_subsequent_room();
+//   console.log(dungeon.pretty_print());
+//   dungeon.create_tunnel(dungeon.rooms[dungeon.rooms.length - 1], dungeon.rooms[dungeon.closest_room(dungeon.rooms[dungeon.rooms.length - 1])]);
+//   console.log(dungeon.pretty_print());
+// }
 
-console.log(dungeon.pretty_print());
+// console.log(dungeon.pretty_print());
+
+exports.Dungeon = Dungeon;
 
