@@ -4,13 +4,13 @@
  as well as attack and die
  */
 class Entity {
-  constructor(name, y, x, h, dungeon) {
+  constructor(name, y, x, h, dungeon, start_sword, start_armour) {
     this.name = name;
     this.y = y;
     this.x = x;
     this.health = h;
     this.dungeon = dungeon;
-    this.items = {'sword': null, 'armour': null};
+    this.items = {'sword': start_sword, 'armour': start_armour};
   }
 
   move(dir) {
