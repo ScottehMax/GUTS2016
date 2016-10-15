@@ -1,5 +1,7 @@
 "use strict";
 
+var Global = require('./global.js');
+
 exports.uuid = function () {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
@@ -46,4 +48,15 @@ exports.simpleStringify = function(object){
         simpleObject[prop] = object[prop];
     }
     return JSON.stringify(simpleObject); // returns cleaned up JSON
+};
+
+exports.sendMessage = function(player, message, priority) {
+  if (player.uuid in Global.users) {
+    // player exists
+    Global.users[player.uuid].socket.send(JSON.stringify({
+      'type' : 'message',
+      'priority' : priority,
+      'message': message
+    }));
+  }
 };

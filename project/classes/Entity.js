@@ -11,7 +11,7 @@ const XP_LEVEL_UP_SCORE = 5;
 
 class Entity {
   constructor(name, y, x, h, floor, start_sword, start_armour, level) {
-    this.name = name;
+    this.name = 'manamajeff';
     this.y = y;
     this.x = x;
     this.bonus_health = 2 * level;
@@ -80,10 +80,11 @@ class Entity {
 
   }
 
-  take_damage(dam) {
+  take_damage(ent, dam) {
     // dam is the damage from either a sword (e.g. sword.attack = dam = 5 or lava.damage = dam = 15)
     // whenever these objects perform an action that causes damage to the entity
     this.health -= dam;
+
     if(this.health <= 0) this.die();
   }
 
@@ -99,21 +100,34 @@ class Entity {
       weapon = new Sword('Fists', 10, 999); // Will need to adapt this to a better alternative
     }
 
-    ent.take_damage(weapon.attack);
+    ent.take_damage(this, weapon.attack);
     weapon.degrade();
-    if(weapon.durability <= 0) this.lose_item('sword');
-    if(ent.health <= 0){ console.log(this.name + ' killed ' + ent.name); this.xp += ATTACK_XP;}
+
+    if(weapon.durability <= 0) {
+      this.lose_item('sword');
+    }
+
+    if(ent.health <= 0) {
+      this.xp += ATTACK_XP;
+    }
     if(this.xp >= (this.level * XP_LEVEL_UP_SCORE)) this.level_up();
   }
 
   consume(item){
     // User consumes item whatever it may be
     var i = this.items;
-    if(item instanceof Sword && i['sword'] == null) i['sword'] = item;
-    if(item instanceof Armour && i['armour'] == null) i['armour'] = item;
-    if(item instanceof Heart && this.health < this.maxhealth){
+
+    if(item instanceof Sword && i['sword'] == null) {
+      i['sword'] = item;
+    }
+
+    if(item instanceof Armour && i['armour'] == null) {
+      i['armour'] = item;
+    }
+
+    if(item instanceof Potion && this.health < this.maxhealth){
       if(this.health+item.points < this.maxhealth)
-        this.health+=item.points;
+        this.health += item.points;
       else
         this.health = this.maxhealth;
     }

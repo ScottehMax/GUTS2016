@@ -383,10 +383,10 @@ class Floor {
       for (var player in floor.players) {
         // 
         if (floor.players[player].overwatch) {
-          Global.users[floor.players[player].uuid].socket.sendUTF(floor.pretty_print(floor.grid, '<br>'));
+          //Global.users[floor.players[player].uuid].socket.sendUTF(floor.pretty_print(floor.grid, '<br>'));
         } else {
-          Global.users[floor.players[player].uuid].socket.sendUTF(floor.pretty_print(floor.view(floor.players[player].y, floor.players[player].x, DRAW_DISTANCE), '<br>'));  
-          // floor.send_tilemap(floor.players[player]);
+          //Global.users[floor.players[player].uuid].socket.sendUTF(floor.pretty_print(floor.view(floor.players[player].y, floor.players[player].x, DRAW_DISTANCE), '<br>'));
+          floor.send_tilemap(floor.players[player]);
         }
         
         //console.log(floor.players[player].socket);
