@@ -225,10 +225,18 @@ roomloop:
     }
   };
 
+  random_location(room) {
+    return [randint(room.y, room.y + room.height - 1), randint(room.x, room.x + room.width - 1)];
+  }
+
   spawn_player(player) {
     this.players[player.user.uuid] = player;
     player.dungeon = this;
-    var location = this.rooms[randint(0, this.rooms.length-1)].centre;
+    var location = this.random_location(this.rooms[randint(0, this.rooms.length-1)]);
+    while (this.grid[location[0]][location[1]].occupied) {
+      location = this.random_location(this.rooms[randint(0, this.rooms.length-1)]);
+    }
+    // var location = this.rooms[randint(0, this.rooms.length-1)].centre;
     player.y = location[0];
     player.x = location[1];
     if (!this.grid[player.y][player.x].occupied) {

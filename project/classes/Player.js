@@ -10,8 +10,10 @@ class Player extends Entity {
   }
 
   erase() {
-    this.dungeon.grid[this.y][this.x].occupied = false;
-    delete this.dungeon.players[this.user.uuid];
+    if (this.dungeon != null) {
+      this.dungeon.grid[this.y][this.x].occupied = false;
+      delete this.dungeon.players[this.user.uuid];
+    }
   }
 }
 
