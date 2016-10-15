@@ -16,8 +16,22 @@
       })
     }
 
+    function create_room() {
+      $('#welcome_step1').fadeOut(300).delay(0.3).css('height', 0);
+      $('#mainscreen').fadeOut(300).delay(0.3).css('height', 0);
+      socket.send(JSON.stringify({uuid: uuid, type: 'create'}));
+    }
+
     function get_rooms() {
-      socket.send(JSON.stringify({type: 'get_rooms'}));
+      socket.send(JSON.stringify({uuid: uuid, type: 'get_rooms'}));
+    }
+
+    function join_room(index) {
+      setTimeout(function(){
+        $('#roomlist').css('top', 0).fadeOut(300).delay(0.3);
+        window.scrollTo(0, 1);
+      })
+      socket.send(JSON.stringify({uuid: uuid, type: 'join', room_index: index}));
     }
 
 
@@ -63,28 +77,35 @@
         // this runs when the socket receives a message from the server
         try {
           // res contains the json representation of the protocol
-          var res = JSON.parse(event.data);
+          var cmd = JSON.parse(event.data);
 
           // do protocol parsing here
 
-          if (res.uuid && uuid == undefined) {
+          if (cmd.uuid && uuid == undefined) {
             // we've received a uuid, use that locally
-            uuid = res.uuid;
+            uuid = cmd.uuid;
             console.log(uuid + ' assigned!');
           }
-          if (res.type != undefined) {
-            switch(res.type) {
+          if (cmd.type != undefined) {
+            switch(cmd.type) {
             case 'room_info':
+              var result_string = '';
               // populate 
-              console.log(res);
+              show_roomlist();
+              for (var room_index in cmd.rooms) {
+                var cur_room = cmd.rooms[room_index];
+                result_string += '<button id=' + room_index + ' onclick="join_room(this.id)">Players: ' + cur_room.players + '</button>'
+              }
+              $('#roomlist').html(result_string);
+              console.log(cmd);
               break;
             }
           }
 
         } catch (e) {
-          console.log(e);
+          $('#fuck').html(event.data);
+          // console.log(e);
         }
-        $('#fuck').html(event.data);
         console.log('[SERVER] ' + event.data);
       });
 

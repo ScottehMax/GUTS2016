@@ -6,7 +6,7 @@ x, y, etc, are generally locations on the grid.
 y before x. height before width.
 */
 
-var socket; //temporary.
+
 
 var utils = require('../utils.js');
 var randint = utils.randint;
@@ -227,6 +227,7 @@ roomloop:
 
   spawn_player(player) {
     this.players[player.user.uuid] = player;
+    player.dungeon = this;
     var location = this.rooms[randint(0, this.rooms.length-1)].centre;
     player.y = location[0];
     player.x = location[1];
@@ -286,8 +287,8 @@ roomloop:
         if (dungeon.players[player].overwatch) {
           dungeon.players[player].socket.sendUTF(dungeon.pretty_print(dungeon.grid, '<br>'));
         } else {
-          // dungeon.players[player].socket.sendUTF(dungeon.pretty_print(dungeon.view(dungeon.players[player].y, dungeon.players[player].x, DRAW_DISTANCE), '<br>'));  
-          dungeon.send_tilemap(dungeon.players[player]);
+          dungeon.players[player].socket.sendUTF(dungeon.pretty_print(dungeon.view(dungeon.players[player].y, dungeon.players[player].x, DRAW_DISTANCE), '<br>'));  
+          // dungeon.send_tilemap(dungeon.players[player]);
         }
         
         //console.log(dungeon.players[player].socket);

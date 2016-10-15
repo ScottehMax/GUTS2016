@@ -29,25 +29,21 @@ var wsServer = new WebSocketServer({
   autoAcceptConnections: false
 });
 
-Global.rooms[0] = new dungeon.Dungeon(40, 40, 9, 9);
 
-var master = false;
+Global.rooms[0] = new dungeon.Dungeon(40, 40, 9, 9);
+Global.rooms[1] = new dungeon.Dungeon(20, 20, 4, 4);
+
+
 
 wsServer.on('request', function (request) {
   console.log('someone is connecting!');
 
   var connection = request.accept('echo-protocol', request.origin);
   var new_user = new user.User(connection);
-  var player_obj = new player.Player(null, null, null, 100,  Global.rooms[0], null, null, 0, connection);
+  var player_obj = new player.Player(null, null, null, 100, null, null, null, 0, connection);
   new_user.player = player_obj;
   player_obj.user = new_user;
   connection.player = player_obj;
-
-  if (!master) {
-    console.log('setting overwatch');
-    connection.player.overwatch = true;
-    master = true;
-  }
 
   // Global.rooms[0].spawn_player(player_obj);
 
@@ -72,13 +68,15 @@ wsServer.on('request', function (request) {
     switch(cmd.type) {
     case 'move':
       // console.log(Global);
+      console.log(Global);
       Global.users[cmd.uuid].player.move(cmd['dir']);
       break;
     case 'get_rooms':
       var room_data = {type: 'room_info', rooms: []}
       for (var room in Global.rooms) {
-        room_data.rooms.push({index: room, players: Global.rooms[room].players.length});
+        room_data.rooms.push({index: room, players: Object.keys(Global.rooms[room].players).length});
       }
+      console.log(room_data);
       connection.sendUTF(JSON.stringify(room_data));
       break;
     case 'join':
@@ -86,7 +84,7 @@ wsServer.on('request', function (request) {
       break;
     case 'create':
       var newdungeon = new dungeon.Dungeon(40, 40, 9, 9);
-      Global.rooms.push(newdungeon);
+      Global.rooms[Object.keys(Global.rooms).length] = newdungeon;
       newdungeon.spawn_player(connection.player);
       break;
     }
@@ -102,4 +100,3 @@ wsServer.on('request', function (request) {
     if(Global.users[connection.uuid]) Global.users[connection.uuid].destroy();
   });
 });
-
