@@ -3,6 +3,12 @@
  Entities include players and mobs who can move
  as well as attack and die
  */
+
+var Sword = require('./Sword.js').Sword;
+
+const ATTACK_XP = 35;
+const XP_LEVEL_UP_SCORE = 5;
+
 class Entity {
   constructor(name, y, x, h, dungeon, start_sword, start_armour, level) {
     this.name = name;
@@ -20,11 +26,14 @@ class Entity {
   move(dir) {
     // Probably better way of implementing, this will move entity's position
     // note: add try_move to dungeon
+    var ent;
 
-    
     switch (dir) {
       case 'n':
         this.direction = 'n';
+        if((ent = this.dungeon.grid[this.y-1][this.x].occupied) instanceof Entity){
+          this.attack(ent);
+        }
         if (this.dungeon.try_move(this, this.y-1, this.x)) {
           this.dungeon.grid[this.y][this.x].occupied = false;
           this.y--;
@@ -33,6 +42,9 @@ class Entity {
         break;
       case 'e':
         this.direction = 'e';
+        if((ent = this.dungeon.grid[this.y][this.x+1].occupied) instanceof Entity){
+          this.attack(ent);
+        }
         if (this.dungeon.try_move(this, this.y, this.x+1)) {
           this.dungeon.grid[this.y][this.x].occupied = false;
           this.x++;
@@ -41,6 +53,9 @@ class Entity {
         break;
       case 'w':
         this.direction = 'w';
+        if((ent = this.dungeon.grid[this.y][this.x-1].occupied) instanceof Entity){
+          this.attack(ent);
+        }
         if (this.dungeon.try_move(this, this.y, this.x-1)) {
           this.dungeon.grid[this.y][this.x].occupied = false;
           this.x--;
@@ -49,6 +64,9 @@ class Entity {
         break;
       case 's':
         this.direction = 's';
+        if((ent = this.dungeon.grid[this.y+1][this.x].occupied) instanceof Entity){
+          this.attack(ent);
+        }
         if (this.dungeon.try_move(this, this.y+1, this.x)) {
           this.dungeon.grid[this.y][this.x].occupied = false;
           this.y++;
@@ -58,7 +76,7 @@ class Entity {
       default:
         break;
     }
-    
+
   }
 
   take_damage(dam) {
@@ -73,13 +91,18 @@ class Entity {
     this.items[item] = null;
   }
 
-  attack(){
+  attack(ent){
     // Entity uses its weapon
     var weapon = this.items['sword'];
-    if(weapon == null) return false;
+    if(weapon == null){
+      weapon = new Sword('Fists', 10, 999); // Will need to adapt this to a better alternative
+    }
+
+    ent.take_damage(weapon.attack);
     weapon.degrade();
     if(weapon.durability <= 0) this.lose_item('sword');
-    if(this.xp >= (this.level * 30)) this.level_up();
+    if(ent.health <= 0) this.xp += ATTACK_XP;
+    if(this.xp >= (this.level * XP_LEVEL_UP_SCORE)) this.level_up();
   }
 
   consume(item){
@@ -102,9 +125,9 @@ class Entity {
   die(){
     var i = this.items;
     // Drop any items the entity was carrying
-      // if(i['sword'] != null && i['armour'] == null) drop sword in current tile
-      // else if(i['sword'] == null && i['armour'] != null) drop armour in current tile
-      // else drop sword and armour in adjacent tiles
+    // if(i['sword'] != null && i['armour'] == null) drop sword in current tile
+    // else if(i['sword'] == null && i['armour'] != null) drop armour in current tile
+    // else drop sword and armour in adjacent tiles
     // Erase entity
     this.erase();
   }
@@ -113,6 +136,8 @@ class Entity {
     // Player levels up which increased their health as well as resetting at the new maximum
     this.bonus_health = (++this.level) * 2;
     this.health = 100 + this.bonus_health;
+    for(var i = 0; i < 20; i++) console.log(this.health+ '\n');
+
   }
 
 }
