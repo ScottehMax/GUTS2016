@@ -16,7 +16,6 @@ class Mob extends Entity {
   idle() {
     // Mob aimlessly wanders, searching for player
     var player;
-    this.hunting = false;
     var directions = ['n', 'e', 'w', 's'];
     var dir = Math.random() * (directions.length);
     dir = directions[dir];
@@ -42,8 +41,9 @@ class Mob extends Entity {
       if (player.x > this.x) this.move('e');
       if (player.x < this.x) this.move('w');
       if (player.y > this.y) this.move('s');
-      if (Math.abs(player.y - this.y) > 5 || Math.abs(player.x - this.x) > 5) this.idle();
+      if (Math.abs(player.y - this.y) > 5 || Math.abs(player.x - this.x) > 5) this.hunting = false;
     }
+    this.idle();
   }
 }
 
