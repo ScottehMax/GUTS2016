@@ -26,6 +26,8 @@ class Entity {
       case 's':
         this.y++;
         break;
+      default:
+        break;
     }
   }
 
