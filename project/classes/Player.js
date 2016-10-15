@@ -16,6 +16,11 @@ class Player extends Entity {
       console.log(this.uuid + ' has perished');
     }
   }
+
+  die() {
+    super();
+    this.erase();
+  }
 }
 
 exports.Player = Player;

@@ -127,7 +127,6 @@ class Entity {
     // Drop any items the entity was carrying
     if(i['sword'] != null) console.log('DROPPED ' + i['sword'])// this.dungeon.grid[this.y][this.x].item(sword)
     // Erase entity
-    this.erase();
   }
 
   level_up(){
