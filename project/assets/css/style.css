@@ -1,5 +1,5 @@
 body {
-    background: black;
+    background: pink;
 }
 
 #main {
@@ -7,13 +7,44 @@ body {
     width: 704px;
     margin: 0 auto 0 auto;
     position: relative;
+    transition: 0.2s all;
 }
 
-#main > canvas {
+#main > canvas, #main > div {
     position: absolute;
+
+}
+
+.to-3d {
+    -webkit-transform: perspective( 600px ) rotateX( 45deg );
+    -moz-transform: perspective( 600px ) rotateX( 45deg );
+    -o-transform: perspective( 600px ) rotateX( 45deg );
+    transform: perspective( 600px ) rotateX( 45deg );
+}
+
+.to-3d > #game__ceiling, .to-3d > #mask {
+    top: -64px;
+}
+
+#game__walls {
+    height: 704px;
+    width: 704px;
+    position: relative;
+}
+
+.wall {
+    height: 64px;
+    width: 64px;
+    position: absolute;
+    -webkit-transform: rotateX( 90deg );
+    -moz-transform: rotateX( 90deg );
+    -o-transform: rotateX( 90deg );
+    transform: rotateX( 90deg );
+
 }
 
 #main > #mask {
+    opacity: 0;
     position: absolute;
     height: 704px;
     width: 704px;
@@ -22,5 +53,5 @@ body {
     background: -webkit-radial-gradient(center, ellipse cover,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.21) 36%,rgba(0,0,0,0.28) 40%,rgba(0,0,0,1) 83%,rgba(0,0,0,1) 100%); /* Chrome10-25,Safari5.1-6 */
     background: radial-gradient(ellipse at center,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.21) 36%,rgba(0,0,0,0.28) 40%,rgba(0,0,0,1) 83%,rgba(0,0,0,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#000000',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
-
+    transition: 0.2s all;
 }

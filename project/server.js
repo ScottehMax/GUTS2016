@@ -8,7 +8,7 @@ var app = express();
 app.use(express.static('assets'));
 
 app.get('/', function(req, res) {
-  res.sendFile(__dirname + '/pages/game.html');
+  res.sendFile(__dirname + '/pages/game3d.html');
 });
 
 app.listen(3000);

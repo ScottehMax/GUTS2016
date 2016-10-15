@@ -4,12 +4,15 @@
   <meta charset="UTF-8">
   <title>Game</title>
 
+  <script type="text/javascript" src="/js/jquery-2.1.4.min.js"></script>
   <script type="text/javascript" src="/js/keypress-2.1.4.min.js"></script>
   <link rel="stylesheet" href="/css/style.css" type="text/css" />
 </head>
 <body>
-  <div id="main">
-    <canvas width="704" height="704" id="game__background"></canvas>
+  <div id="main" class="to-3d">
+    <canvas width="704" height="704" id="game__ground"></canvas>
+    <div id="game__walls"></div>
+    <canvas width="704" height="704" id="game__ceiling"></canvas>
     <div id="mask"></div>
   </div>
 
@@ -34,12 +37,36 @@
 
     listener.simple_combo("up", function(){
       console.log("moved up");
-      startBoard.unshift([0,0,0,0,0,0,0,0,0,0,0]);
+      startBoard = [
+        [1,0,0,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,0,0,0,0,1,1],
+        [1,0,0,0,0,0,0,0,0,1,1],
+        [1,0,0,0,0,0,0,0,1,1,1],
+        [1,0,0,0,0,0,0,0,1,1,1],
+        [1,1,1,0,0,0,0,1,1,1,1],
+        [1,1,1,0,0,0,1,1,1,1,1],
+        [1,1,1,0,0,0,0,1,1,1,1],
+        [1,1,1,0,0,0,0,1,1,1,1],
+        [1,1,1,0,0,0,0,1,1,1,1],
+        [1,1,1,0,0,0,0,0,1,1,1]
+      ];
       populate(startBoard);
     });
     listener.simple_combo("down", function(){
       console.log("moved down");
-      startBoard.shift();
+      startBoard = [
+        [1,1,1,1,1,0,0,0,0,1,1],
+        [1,0,0,0,0,0,0,0,0,1,1],
+        [1,0,0,0,0,0,0,0,1,1,1],
+        [1,0,0,0,0,0,0,0,1,1,1],
+        [1,1,1,0,0,0,0,1,1,1,1],
+        [1,1,1,0,0,0,1,1,1,1,1],
+        [1,1,1,0,0,0,0,1,1,1,1],
+        [1,1,1,0,0,0,0,1,1,1,1],
+        [1,1,1,0,0,0,0,1,1,1,1],
+        [1,1,1,0,0,0,0,0,1,1,1],
+        [1,1,1,0,0,0,0,0,1,1,1]
+      ];
       populate(startBoard);
     });
     listener.simple_combo("left", function(){
@@ -49,8 +76,10 @@
       console.log("moved right");
     });
 
-    var canvas = document.getElementById('game__background');
-    var context = canvas.getContext('2d');
+    var canvas = {
+      'ground' : document.getElementById('game__ground').getContext('2d'),
+      'ceiling' : document.getElementById('game__ceiling').getContext('2d')
+    };
 
     var sources = [
       'stone1.png',
@@ -88,14 +117,20 @@
       for (var i = 0; i < 11; i++) {
         var row = board[i];
         for (var j = 0; j < 11; j++) {
-          var image = images.wall1;
           switch (row[j]) {
             case 0:
-              var image = images.stone2;
+              canvas.ground.drawImage(images.stone1, j * 64, i * 64);
+              break;
+            case 1:
+              canvas.ceiling.drawImage(images.wall1, j * 64, i * 64);
+
+              // draw wall
+              if (i < 10 && board[i+1][j] === 0) {
+                $('#game__walls').append('<div class="wall" style="bottom: ' + (11 - i - 1) * 64 + 'px; left: ' + j * 64 + 'px"><img src="/img/tiles/stone2.png"></div>');
+              }
+
               break;
           }
-
-          context.drawImage(image, j*64, i*64);
         }
       }
     }
