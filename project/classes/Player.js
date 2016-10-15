@@ -4,9 +4,8 @@ var Entity = require('./Entity.js').Entity;
  Player is a controllable entity
  */
 class Player extends Entity {
-  constructor(name, y, x, h, dungeon, start_sword, start_armour, level, socket) {
+  constructor(name, y, x, h, dungeon, start_sword, start_armour, level) {
     super(name, y, x, h, dungeon, start_sword,  start_armour, level);
-    this.socket = socket;
   }
 
   erase() {
