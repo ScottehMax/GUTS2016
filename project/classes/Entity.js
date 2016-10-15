@@ -11,7 +11,7 @@ const XP_LEVEL_UP_SCORE = 5;
 
 class Entity {
   constructor(name, y, x, h, floor, start_sword, start_armour, level) {
-    this.name = 'manamajeff';
+    this.name = name;
     this.y = y;
     this.x = x;
     this.bonus_health = 2 * level;
