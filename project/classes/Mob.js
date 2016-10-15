@@ -1,3 +1,4 @@
+"use strict";
 /*
  Mobs are entities not controlled by users
  and are hostile towards players
@@ -7,3 +8,5 @@ class Mob extends Entity {
     super(name, y, x, h);
   }
 }
+
+exports.Mob = Mob;

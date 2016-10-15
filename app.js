@@ -29,7 +29,9 @@ var wsServer = new WebSocketServer({
   autoAcceptConnections: false
 });
 
-Global.rooms[0] = new dungeon.Dungeon(30, 30, 7, 7);
+Global.rooms[0] = new dungeon.Dungeon(40, 40, 9, 9);
+
+var master = false;
 
 wsServer.on('request', function (request) {
   console.log('someone is connecting!');
@@ -40,6 +42,12 @@ wsServer.on('request', function (request) {
   new_user.player = player_obj;
   player_obj.user = new_user;
   connection.player = player_obj;
+
+  if (!master) {
+    console.log('setting overwatch');
+    connection.player.overwatch = true;
+    master = true;
+  }
 
   Global.rooms[0].spawn_player(player_obj);
 
