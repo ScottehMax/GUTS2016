@@ -1,6 +1,6 @@
 "use strict";
 var Entity = require('./Entity.js').Entity;
-var Sword = require('./Sword.js').Sword;
+var Weapon = require('./Weapon.js').Weapon;
 var Armour = require('./Armour.js').Armour;
 var Potion = require('./Potion.js').Potion;
 var message = require('../utils.js').sendMessage;
@@ -13,8 +13,8 @@ var Global = require('../global.js');
  Player is a controllable entity
  */
 class Player extends Entity {
-  constructor(name, y, x, h, floor, start_sword, start_armour, level) {
-    super(name, y, x, h, floor, start_sword,  start_armour, level);
+  constructor(name, y, x, h, floor, start_sword, start_armour, level, sprite) {
+    super(name, y, x, h, floor, start_sword,  start_armour, level, sprite);
   }
   
   take_damage(ent, dam) {
@@ -26,7 +26,7 @@ class Player extends Entity {
     // Entity uses its weapon
     var weapon = this.items['sword'];
     if(weapon == null){
-      weapon = new Sword('Fists', 10, 999); // Will need to adapt this to a better alternative
+      weapon = new Weapon('Fists', 10, 999); // Will need to adapt this to a better alternative
     }
 
     ent.take_damage(this, weapon.attack);
@@ -51,7 +51,7 @@ class Player extends Entity {
     // User consumes item whatever it may be
     var i = this.items;
 
-    if(item instanceof Sword && i['sword'] == null) {
+    if(item instanceof Weapon && i['sword'] == null) {
       i['sword'] = item;
       message(this, 'You acquired the ' + item.name, 1);
     }
@@ -87,7 +87,7 @@ class Player extends Entity {
   }
 
   level_up(){
-    message(this, 'You levelled up, now on level' + this.level, 2);
+    message(this, 'You levelled up to level ' + this.level, 2);
     super.level_up();
   }
 }

@@ -12,3 +12,5 @@ class Armour extends Item{
     this.durability = dur;
   }
 }
+
+exports.Armour = Armour;

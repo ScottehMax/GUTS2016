@@ -4,14 +4,14 @@
  as well as attack and die
  */
 
-var Sword = require('./Sword.js').Sword;
+var Weapon = require('./Weapon.js').Weapon;
 var Mob = require('./Mob.js').Mob;
 
 const ATTACK_XP = 35;
 const XP_LEVEL_UP_SCORE = 5;
 
 class Entity {
-  constructor(name, y, x, h, floor, start_sword, start_armour, level) {
+  constructor(name, y, x, h, floor, start_sword, start_armour, level, sprite) {
     this.name = name;
     this.y = y;
     this.x = x;
@@ -23,6 +23,7 @@ class Entity {
     this.level = level;
     this.direction = 'n';
     this.xp = 0;
+    this.sprite = sprite;
   }
 
   move(dir) {
@@ -100,7 +101,7 @@ class Entity {
     // Entity uses its weapon
     var weapon = this.items['sword'];
     if(weapon == null){
-      weapon = new Sword('Fists', 10, 999); // Will need to adapt this to a better alternative
+      weapon = new Weapon('Fists', 10, 999); // Will need to adapt this to a better alternative
     }
 
     ent.take_damage(this, weapon.attack);
@@ -120,7 +121,7 @@ class Entity {
     // User consumes item whatever it may be
     var i = this.items;
 
-    if(item instanceof Sword && i['sword'] == null) {
+    if(item instanceof Weapon && i['sword'] == null) {
       i['sword'] = item;
     }
 

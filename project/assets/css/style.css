@@ -242,14 +242,7 @@ button {
     position: absolute;
 }
 
-.to-3d > #game__ceiling, .to-3d > #mask {
-    -webkit-transform: perspective( 1000px ) rotateX( 20deg ) translateZ(64px);
-    -moz-transform: perspective( 1000px ) rotateX( 20deg ) translateZ(64px);
-    -o-transform: perspective( 1000px ) rotateX( 20deg ) translateZ(64px);
-    transform: perspective( 1000px ) rotateX( 20deg ) translateZ(64px);
-}
-
-.to-3d > #game__walls {
+.to-3d > #game__ceiling, .to-3d > #mask, .to-3d > #game__walls {
     -webkit-transform: perspective( 1000px ) rotateX( 20deg ) translateZ(64px);
     -moz-transform: perspective( 1000px ) rotateX( 20deg ) translateZ(64px);
     -o-transform: perspective( 1000px ) rotateX( 20deg ) translateZ(64px);
@@ -267,17 +260,41 @@ button {
     height: 704px;
     width: 704px;
     position: relative;
+    transform-style: preserve-3d;
 }
 
-.wall {
+.wall--b {
     height: 64px;
     width: 64px;
     position: absolute;
+    transform-origin: 32px 64px;
     -webkit-transform: perspective( 1000px ) rotateX( 90deg );
     -moz-transform: perspective( 1000px ) rotateX( 90deg );
     -o-transform: perspective( 1000px ) rotateX( 90deg );
     transform: perspective( 1000px ) rotateX( 90deg );
 
+}
+
+.wall--l {
+    height: 64px;
+    width: 64px;
+    position: absolute;
+    transform-origin: 0px 64px;
+    -webkit-transform: perspective( 1000px ) rotateX( 90deg ) rotateY( 90deg );
+    -moz-transform: perspective( 1000px ) rotateX( 90deg );
+    -o-transform: perspective( 1000px ) rotateX( 90deg );
+    transform: perspective( 1000px ) rotateX( 90deg ) rotateY( 90deg );
+}
+
+.wall--r {
+    height: 64px;
+    width: 64px;
+    position: absolute;
+    transform-origin: 64px 64px;
+    -webkit-transform: perspective( 1000px ) rotateX( 90deg ) rotateY( 90deg );
+    -moz-transform: perspective( 1000px ) rotateX( 90deg );
+    -o-transform: perspective( 1000px ) rotateX( 90deg );
+    transform: perspective( 1000px ) rotateX( 90deg ) rotateY( 90deg );
 }
 
 #main > #mask {

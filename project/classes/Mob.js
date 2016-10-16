@@ -10,14 +10,18 @@ var utils = require('../utils.js');
 
 const VIEW_DIST = 5;
 class Mob extends Entity {
-  constructor(name, y, x, h, floor, start_sword, start_armour, level, ticks) {
-    super(name, y, x, h, floor, start_sword, start_armour, level);
+  constructor(name, y, x, h, floor, start_sword, start_armour, level, sprite, ticks) {
+    super(name, y, x, h, floor, start_sword, start_armour, level, sprite);
     this.hunting = false;
     // how many ticks before it can move
     this.ticks = ticks;
     this.alive = true;
     // mutate this one tbh
     this.ticksleft = ticks;
+  }
+
+  consume() {
+    return false;
   }
 
   random_move() {
@@ -86,7 +90,7 @@ class Mob extends Entity {
     if (this.floor != null) {
       this.floor.grid[this.y][this.x].occupied = false;
       delete this.floor.npcs[this.uuid];
-      console.log(this.uuid + ' has perished');
+      console.log(this.name + ' has perished');
     }
   }
 
@@ -95,7 +99,8 @@ class Mob extends Entity {
     // Drop any items the entity was carrying
     if(i['sword'] != null) console.log('DROPPED ' + i['sword'])// this.dungeon.grid[this.y][this.x].item(sword)
     // Erase entity
-    this.erase()
+    super.die();
+    this.erase();
   }
 }
 

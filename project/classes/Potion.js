@@ -9,5 +9,8 @@ class Potion extends Item{
   constructor(p){
     super('');
     this.points = p;
+    this.sprite = 'potion';
   }
 }
+
+exports.Potion = Potion;

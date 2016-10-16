@@ -59,6 +59,7 @@
   <div id="dead" class="sheet">
     <center>
       <img src="/img/youdied.png"><br>
+      <h2>Your score was <b><span id="dead__score"></span></b></h2>
       <p>
         <button id="create_room" onClick="location.reload()">Play Again</button>
       </p>
@@ -138,17 +139,22 @@
             canvas.ceiling.drawImage(images['tiles/wall' + row[j].sprite], j * 64, i * 64);
 
             // draw wall
-            if (i < 10 && board[i+1][j].type !== 'solid') {
-              $('#game__walls').append('<div class="wall" style="bottom: ' + (11 - i - 1) * 64 + 'px; left: ' + j * 64 + 'px"><img src="/img/tiles/stone2.png"></div>');
+            if (i < 10 && (board[i+1][j].type !== 'solid' && board[i+1][j].type !== 'abyss')) {
+              $('#game__walls').append('<div class="wall--b" style="bottom: ' + (11 - i - 1) * 64 + 'px; left: ' + j * 64 + 'px"><img src="/img/tiles/stone3.png"></div>');
+            }
+            if (j > 0 && (board[i][j-1].type !== 'solid' && board[i][j-1].type !== 'abyss')) {
+              $('#game__walls').append('<div class="wall--l" style="bottom: ' + (11 - i) * 64 + 'px; left: ' + j * 64 + 'px"><img src="/img/tiles/stone3.png"></div>');
+            }
+            if (j < 10 && (board[i][j+1].type !== 'solid' && board[i][j+1].type !== 'abyss')) {
+              $('#game__walls').append('<div class="wall--r" style="bottom: ' + (11 - i - 1) * 64 + 'px; left: ' + j * 64 + 'px"><img src="/img/tiles/stone3.png"></div>');
             }
           } else {
-            if (row[j].occupied != "{}") {
-              var spr = JSON.parse(row[j].occupied);
-              canvas.sprites.drawImage(images['sprites/player1_' + spr.direction], j * 64, i * 64);
-
-              if (!("hunting" in spr)) {
-                $('#hud__health').text(spr.health);
-                $('#hud__xp').text(spr.xp);
+            if (row[j].occupied != null) {
+              if (row[j].occupied.type === 'Player' || row[j].occupied.type === 'Mob') {
+                var spr = row[j].occupied;
+                canvas.sprites.drawImage(images['sprites/' + spr.sprite + '_' + spr.direction], j * 64, i * 64);
+              } else if (row[j].occupied.type == 'Potion') {
+                canvas.sprites.drawImage(images['items/' + row[j].occupied.sprite], j * 64, i * 64);
               }
             }
 
@@ -217,7 +223,20 @@
       'sprites/player4_n.png',
       'sprites/player4_e.png',
       'sprites/player4_s.png',
-      'sprites/player4_w.png'
+      'sprites/player4_w.png',
+      'sprites/slime1_n.png',
+      'sprites/slime1_e.png',
+      'sprites/slime1_s.png',
+      'sprites/slime1_w.png',
+      'sprites/slime2_n.png',
+      'sprites/slime2_e.png',
+      'sprites/slime2_s.png',
+      'sprites/slime2_w.png',
+      'sprites/slime3_n.png',
+      'sprites/slime3_e.png',
+      'sprites/slime3_s.png',
+      'sprites/slime3_w.png',
+      'items/potion.png'
     ];
 
     loadImages(sources, function(imagesOut) {
@@ -269,7 +288,6 @@
 
       socket.addEventListener("open", function(event) {
         // this runs when the socket is first opened
-
       });
 
       socket.addEventListener("message", function(event) {
@@ -286,8 +304,9 @@
         }
         if (cmd.type != undefined) {
           switch(cmd.type) {
-          case 'map':
-            //levelMap = cmd.map
+            case 'map':
+            $('#hud__health').text(cmd.player.health);
+            $('#hud__xp').text(cmd.player.xp);
             populate(cmd.map);
           case 'room_info':
             var result_string = '';
@@ -317,6 +336,7 @@
             console.log('[MESG] ' + cmd.message);
             break;
           case 'death':
+            $('#dead__score').text($('#hud__xp').html());
             $('#main').hide();
             $('#mobileControls').hide();
             $('#hud').hide();
