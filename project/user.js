@@ -15,6 +15,7 @@ class User {
   }
 
   destroy() {
+    // called on socket close
     var user = Global.users[this.uuid];
     user.player.erase();
     delete Global.users[this.uuid];

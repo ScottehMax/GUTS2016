@@ -26,6 +26,7 @@ class Entity {
   }
 
   move(dir) {
+    if (!this.alive) return;
     // Probably better way of implementing, this will move entity's position
     // note: add try_move to floor
     var ent;
@@ -95,6 +96,7 @@ class Entity {
   }
 
   attack(ent){
+    if (!this.alive) return;
     // Entity uses its weapon
     var weapon = this.items['sword'];
     if(weapon == null){
@@ -143,6 +145,7 @@ class Entity {
   }
 
   die(){
+    this.alive = false;
     var i = this.items;
     // Drop any items the entity was carrying
     if(i['sword'] != null) console.log('DROPPED ' + i['sword'])// this.dungeon.grid[this.y][this.x].item(sword)
