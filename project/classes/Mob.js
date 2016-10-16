@@ -97,7 +97,30 @@ class Mob extends Entity {
   die(){
     var i = this.items;
     // Drop any items the entity was carrying
-    if(i['weapon'] != null) console.log('DROPPED ' + i['weapon'])// this.dungeon.grid[this.y][this.x].item(weapon)
+    if(i['weapon'] != null) {
+      // pick a random location in the room
+      var location = this.floor.random_location(this.floor.rooms[this.floor.grid[this.y][this.x].room_index]);
+      var tries = 0;
+      while (this.floor.grid[location[0]][location[1]].item != null) {
+        var location = this.floor.random_location(this.floor.rooms[this.floor.grid[this.y][this.x].room_index]);
+        tries++;
+        if (tries > 20) {
+          super.die();
+          this.erase();
+          return;
+        }
+      }
+      var item = i['weapon'];
+      item.y = location[0];
+      item.x = location[1];
+
+
+      if (!this.floor.grid[item.y][item.x].occupied) {
+        this.floor.grid[item.y][item.x].occupied = item;
+      }
+
+      console.log('DROPPED ' + i['weapon'])// this.dungeon.grid[this.y][this.x].item(weapon)
+    }
     // Erase entity
     super.die();
     this.erase();
