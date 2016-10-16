@@ -123,6 +123,7 @@ button {
     height: 180px;
     margin: 35px auto 0 auto;
     position: relative;
+    z-index: 101;
 }
 
 #mobileControlsCont > #l {
