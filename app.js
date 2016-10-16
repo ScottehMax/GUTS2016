@@ -8,12 +8,12 @@ var chain = require('./project/chain.js');
 var dungeon = require('./project/classes/Dungeon_Classes.js');
 var player = require('./project/classes/Player.js');
 
-// Set up web server
-var WEB_PORT = 3000;
+// lmao sorry eduroam is bad
+var WEB_PORT = 80;
+var PORT = 443;
 
 require('./project/server.js').startWebServer(WEB_PORT);
 
-var PORT = 9001;
 var MAX_USERS = 20;
 
 var WebSocketServer = require('websocket').server;
