@@ -346,6 +346,8 @@ class Floor {
     } else {
       var legend_name = chain.gen_name()
       var weapon = randint(1, 3) == 1 ? new Weapon(chain.gen_weapon(), randint(20, 25), 5000) : null;
+      weapon.type = 'sword';
+      weapon.sprite = 'sword1';
       var armourmetal = [['Platinum', 20], ['Gold', 10], ['Silver', 5], ['Iron', 3]][randint(0, 3)];
       var armourtype = ['Chestplate', 'Cuirass', 'Chainmail'][randint(0, 2)];
       var armour = randint(1, 3) == 1 ? new Armour(armourmetal[0] + ' ' + armourtype, armourmetal[1], 5000) : null;
@@ -394,11 +396,15 @@ class Floor {
 
     if (type == 'Weapon') {
       if (legendary) {
-        var item = new Weapon(chain.gen_weapon(), randint(15, 25), 5000);  
+        var item = new Weapon(chain.gen_weapon(), randint(15, 25), 5000);
+        item.type = 'sword';
+        item.sprite = 'sword1';
       } else {
         var weaponmetal = [['Platinum', 20], ['Gold', 10], ['Silver', 5], ['Iron', 3]][randint(0, 3)];
         var weapontype = ["Sword", 'Axe', 'Mace'][randint(0, 2)];
         var item = new Weapon(weaponmetal[0] + ' ' + weapontype, weaponmetal[1], 100);
+        item.type = weapontype.toLowerCase();
+        item.sprite = weapontype.toLowerCase() + '1';
       }
     } else {
       var armourtype = ['Chestplate', 'Cuirass', 'Chainmail'][randint(0, 2)];
