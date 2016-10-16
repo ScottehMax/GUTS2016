@@ -524,7 +524,7 @@ class Floor {
     var floor = this;
     var f = function() {
       // spawn a mob every 5s on average
-      if (randint(1, Math.floor(50 / floor.index)) == 1) {
+      if (randint(1, Math.floor(50 / (floor.index +1))) == 1) {
         floor.spawn_mob();
       }
 
