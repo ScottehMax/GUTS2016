@@ -303,7 +303,11 @@ class Floor {
   };
 
   random_location(room) {
-    return [randint(room.y, room.y + room.height - 1), randint(room.x, room.x + room.width - 1)];
+    if (room) {
+      return [randint(room.y, room.y + room.height - 1), randint(room.x, room.x + room.width - 1)];
+    } else {
+      return [20,20];
+    }
   }
 
   spawn_player(player, loc) {
