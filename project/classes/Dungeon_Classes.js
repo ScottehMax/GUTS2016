@@ -10,10 +10,16 @@ y before x. height before width.
 
 var utils = require('../utils.js');
 var Global = require('../global.js');
+var chain = require('../chain.js');
+
 var Mob = require('./Mob.js').Mob;
+var Weapon = require('./Weapon.js').Weapon;
+var Potion = require('./Potion.js').Potion;
 var Player = require('./Player.js').Player;
 var randint = utils.randint;
 var distance = utils.distance;
+
+var fire = new Weapon('Fire', 2, 999999);
 
 const MAX_TUNNELS = 2;
 const MAX_FLOORS = 15;
@@ -321,12 +327,25 @@ class Floor {
     while (this.grid[location[0]][location[1]].occupied) {
       location = this.random_location(this.rooms[randint(0, this.rooms.length-1)]);
     }
-    var mob = new Mob('bob', location[0], location[1], 20, this, null, null, 1, 10);
+    var mob = new Mob(chain.gen_name(), location[0], location[1], 20, this, null, null, 1, 'slime' + randint(1,3), 10);
     this.npcs[Object.keys(this.npcs).length] = mob;
     mob.y = location[0];
     mob.x = location[1];
     if (!this.grid[mob.y][mob.x].occupied) {
       this.grid[mob.y][mob.x].occupied = mob;
+    }
+  }
+
+  spawn_potion() {
+    var location = this.random_location(this.rooms[randint(0, this.rooms.length-1)]);
+    while (this.grid[location[0]][location[1]].occupied) {
+      location = this.random_location(this.rooms[randint(0, this.rooms.length-1)]);
+    }
+    var potion = new Potion(20);
+    potion.y = location[0];
+    potion.x = location[1];
+    if (!this.grid[potion.y][potion.x].occupied) {
+      this.grid[potion.y][potion.x].occupied = potion;
     }
   }
 
@@ -336,6 +355,11 @@ class Floor {
     if (!!this.grid[y][x].occupied) {
       console.log(this.grid[y][x].occupied);
       // interact with whatever entity is there lmao
+      if (this.grid[y][x].occupied instanceof Potion) {
+        player.consume(this.grid[y][x].occupied);
+        this.grid[y][x].occupied = null;
+        return true;
+      }
       return false;
     }
     switch(this.grid[y][x].type) {
@@ -403,10 +427,16 @@ class Floor {
     // a tick is 1/10 second (ideally)
     var floor = this;
     var f = function() {
-      // spawn a mob every 20s on average
-      if (randint(1, 20) == 1) {
+      // spawn a mob every 5s on average
+      if (randint(1, 50) == 1) {
         floor.spawn_mob();
       }
+
+      // spawn a potion every 20s on average
+      if (randint(1, 200) == 1) {
+        floor.spawn_potion();
+      }
+
       // loop over npcs here and make them do shit
       for (var npc in floor.npcs) {
         if (floor.npcs[npc].ticksleft == 0) {
@@ -423,16 +453,16 @@ class Floor {
         // burn hurts 2 dmg every 2 seconds and lasts for 10 seconds on average
         if (floor.players[player].burning) {
           if (randint(1, 20) == 1) {
-            floor.players[player].take_damage(2);
+            floor.players[player].take_damage(fire, fire.attack);
           } 
           if (randint(1, 100) == 1) {
             floor.players[player].burning = false;
           }
         }
         if (floor.players[player].overwatch) {
-          Global.users[floor.players[player].uuid].socket.sendUTF(floor.pretty_print(floor.grid, '<br>'));
+          //Global.users[floor.players[player].uuid].socket.sendUTF(floor.pretty_print(floor.grid, '<br>'));
         } else {
-          // Global.users[floor.players[player].uuid].socket.sendUTF(floor.pretty_print(floor.view(floor.players[player].y, floor.players[player].x, DRAW_DISTANCE), '<br>'));  
+          //Global.users[floor.players[player].uuid].socket.sendUTF(floor.pretty_print(floor.view(floor.players[player].y, floor.players[player].x, DRAW_DISTANCE), '<br>'));
           floor.send_tilemap(floor.players[player]);
         }
         
@@ -448,21 +478,30 @@ class Floor {
     for (var y = 0; y < v.length; y++) {
       for (var x = 0; x < v[0].length; x++) {
         if (v[y] == undefined) { v[y] = [] }
-        if (v[y][x] == undefined) { v[y][x] = {type: 'abyss', sprite: 1, item: null, occupied: ''}; continue; }
+        if (v[y][x] == undefined) { v[y][x] = {type: 'abyss', sprite: 1, item: null, occupied: null}; continue; }
         var cur = v[y][x];
         // v[y][x] = {type: cur.type, sprite: cur.sprite, item: cur.item, occupied: !!cur.occupied ? cur.occupied.constructor.name : false};
         var occupied_info = null;
         if (!!v[y][x].occupied) {
           if (v[y][x].occupied instanceof Player) {
-            occupied_info = {symbol: '@', type: 'Player'};
+            occupied_info = {symbol: '@', type: 'Player', direction: v[y][x].occupied.direction, sprite: v[y][x].occupied.sprite};
           } else if (v[y][x].occupied instanceof Mob) {
-            occupied_info = {symbol: '&', type: 'Mob'};
+            occupied_info = {symbol: '&', type: 'Mob', direction: v[y][x].occupied.direction, sprite: v[y][x].occupied.sprite};
+          } else if (v[y][x].occupied instanceof Potion) {
+            occupied_info = {symbol: '*', type: 'Potion', sprite: v[y][x].occupied.sprite};
           }
         }
-        v[y][x] = {type: cur.type, sprite: cur.sprite, item: cur.item, occupied: occupied_info != null ? JSON.stringify(occupied_info) : ''};
+        v[y][x] = {type: cur.type, sprite: cur.sprite, item: cur.item, occupied: occupied_info != null ? occupied_info : null};
       }
     }
-    var res = {type: "map", map: v};
+    var res = {
+      type: "map",
+      player: {
+        health: player.health,
+        xp: player.xp
+      },
+      map: v
+    };
     Global.users[player.uuid].socket.sendUTF(JSON.stringify(res));
   }
 

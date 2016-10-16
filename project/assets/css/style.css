@@ -6,12 +6,162 @@ body.debug #mask {
     opacity: 0!important;
 }
 
+::-webkit-scrollbar {
+    display: none;
+}
+
 body {
     background: black;
     color: white;
+    font-family: "Helvetica Neue";
+    overflow: hidden;
 }
 
-#intro {
+button {
+    height: 40px;
+    border: 1px solid #CCC;
+    background-color: #EEE;
+    color: #333333;
+}
+
+#hud {
+    height: 200px;
+    max-width: 704px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: calc((100vw - 704px) / 2);
+    display: none;
+    z-index: 100;
+}
+
+#hudCont {
+    height: 190px;
+    width: 694px;
+    position: relative;
+}
+
+#hud__weapon {
+    height: 90px;
+    width: 90px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: 1px solid #CCC;
+    border-radius: 5px;
+}
+
+#hud__armour {
+    height: 90px;
+    width: 90px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    border: 1px solid #CCC;
+    border-radius: 5px;
+}
+
+#hud__health {
+    height: 90px;
+    width: 90px;
+    position: absolute;
+    top: 0;
+    left: 100px;
+    border: 1px solid #CCC;
+    border-radius: 5px;
+    line-height: 90px;
+    color: red;
+    text-align: center;
+    font-size: 20px;
+    background-color: rgba(0,0,0,0.7);
+}
+
+#hud__xp {
+    height: 90px;
+    width: 90px;
+    position: absolute;
+    bottom: 0;
+    left: 100px;
+    border: 1px solid #CCC;
+    border-radius: 5px;
+    line-height: 90px;
+    color: green;
+    text-align: center;
+    font-size: 20px;
+    background-color: rgba(0,0,0,0.7);
+}
+
+#hud__messages {
+    height: 200px;
+    width: 504px;
+    position: absolute;
+    top: 0;
+    right: 0px;
+    border: 1px solid #CCC;
+    border-radius: 5px;
+    overflow-y: scroll;
+    background-color: rgba(0,0,0,0.7);
+}
+
+.hud__message {
+    font-size: 22px;
+    margin: 5px 10px;
+}
+
+#mobileControls {
+    height: 250px;
+    max-width: 704px;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    left: calc((100vw - 704px) / 2);
+    display: none;
+}
+
+#mobileControlsCont {
+    width: 320px;
+    height: 180px;
+    margin: 35px auto 0 auto;
+    position: relative;
+}
+
+#mobileControlsCont > #l {
+    height: 180px;
+    width: 80px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-image: url('/img/arrowLeft.png');
+}
+
+#mobileControlsCont > #r {
+    height: 180px;
+    width: 80px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-image: url('/img/arrowRight.png');
+}
+
+#mobileControlsCont > #u {
+    height: 80px;
+    width: 120px;
+    position: absolute;
+    top: 0;
+    left: 100px;
+    background-image: url('/img/arrowUp.png');
+}
+
+#mobileControlsCont > #d {
+    height: 80px;
+    width: 120px;
+    position: absolute;
+    bottom: 0;
+    left: 100px;
+    background-image: url('/img/arrowDown.png');
+}
+
+.sheet {
     height: 664px;
     width: auto;
     max-width: 664px;
@@ -22,6 +172,31 @@ body {
     border: 1px solid #CCC;
     padding: 20px;
     overflow-y: scroll;
+}
+
+#intro {
+    opacity: 0;
+    transition: 2s all ease-in-out;
+    top: 20px;
+}
+
+.intro--angle {
+    opacity: 1!important;
+    top: 0!important;
+    -webkit-transform: perspective( 1000px ) rotateX( 20deg ) translateZ(64px);
+    -moz-transform: perspective( 1000px ) rotateX( 20deg ) translateZ(64px);
+    -o-transform: perspective( 1000px ) rotateX( 20deg ) translateZ(64px);
+    transform: perspective( 1000px ) rotateX( 20deg ) translateZ(64px);
+}
+
+
+.intro--mobile {
+    opacity: 1!important;
+    top: 0!important;
+}
+
+.intro > img {
+    width: 600px;
 }
 
 .intro__container {
@@ -47,6 +222,10 @@ body {
     width: 100px;
 }
 
+#dead {
+    display: none;
+}
+
 #main {
     height: 704px;
     width: 704px;
@@ -63,14 +242,7 @@ body {
     position: absolute;
 }
 
-.to-3d > #game__ceiling, .to-3d > #mask {
-    -webkit-transform: perspective( 1000px ) rotateX( 20deg ) translateZ(64px);
-    -moz-transform: perspective( 1000px ) rotateX( 20deg ) translateZ(64px);
-    -o-transform: perspective( 1000px ) rotateX( 20deg ) translateZ(64px);
-    transform: perspective( 1000px ) rotateX( 20deg ) translateZ(64px);
-}
-
-.to-3d > #game__walls {
+.to-3d > #game__ceiling, .to-3d > #mask, .to-3d > #game__walls {
     -webkit-transform: perspective( 1000px ) rotateX( 20deg ) translateZ(64px);
     -moz-transform: perspective( 1000px ) rotateX( 20deg ) translateZ(64px);
     -o-transform: perspective( 1000px ) rotateX( 20deg ) translateZ(64px);
@@ -88,17 +260,41 @@ body {
     height: 704px;
     width: 704px;
     position: relative;
+    transform-style: preserve-3d;
 }
 
-.wall {
+.wall--b {
     height: 64px;
     width: 64px;
     position: absolute;
+    transform-origin: 32px 64px;
     -webkit-transform: perspective( 1000px ) rotateX( 90deg );
     -moz-transform: perspective( 1000px ) rotateX( 90deg );
     -o-transform: perspective( 1000px ) rotateX( 90deg );
     transform: perspective( 1000px ) rotateX( 90deg );
 
+}
+
+.wall--l {
+    height: 64px;
+    width: 64px;
+    position: absolute;
+    transform-origin: 0px 64px;
+    -webkit-transform: perspective( 1000px ) rotateX( 90deg ) rotateY( 90deg );
+    -moz-transform: perspective( 1000px ) rotateX( 90deg );
+    -o-transform: perspective( 1000px ) rotateX( 90deg );
+    transform: perspective( 1000px ) rotateX( 90deg ) rotateY( 90deg );
+}
+
+.wall--r {
+    height: 64px;
+    width: 64px;
+    position: absolute;
+    transform-origin: 64px 64px;
+    -webkit-transform: perspective( 1000px ) rotateX( 90deg ) rotateY( 90deg );
+    -moz-transform: perspective( 1000px ) rotateX( 90deg );
+    -o-transform: perspective( 1000px ) rotateX( 90deg );
+    transform: perspective( 1000px ) rotateX( 90deg ) rotateY( 90deg );
 }
 
 #main > #mask {
@@ -107,9 +303,9 @@ body {
     height: 704px;
     width: 704px;
     /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+40,000000+100&0+0,0.21+36,1+83 */
-    background: -moz-radial-gradient(center, ellipse cover,  rgba(0,0,0,0) 0%, rgba(0,0,0,0.21) 26%, rgba(0,0,0,0.28) 30%, rgba(0,0,0,1) 70%, rgba(0,0,0,1) 100%); /* FF3.6-15 */
-    background: -webkit-radial-gradient(center, ellipse cover,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.21) 26%,rgba(0,0,0,0.28) 30%,rgba(0,0,0,1) 70%,rgba(0,0,0,1) 100%); /* Chrome10-25,Safari5.1-6 */
-    background: radial-gradient(ellipse at center,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.21) 26%,rgba(0,0,0,0.28) 30%,rgba(0,0,0,1) 70%,rgba(0,0,0,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    background: -moz-radial-gradient(center, ellipse cover,  rgba(0,0,0,0) 0%, rgba(0,0,0,0.21) 36%, rgba(0,0,0,0.28) 45%, rgba(0,0,0,1) 80%, rgba(0,0,0,1) 100%); /* FF3.6-15 */
+    background: -webkit-radial-gradient(center, ellipse cover,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.21) 36%,rgba(0,0,0,0.28) 45%,rgba(0,0,0,1) 80%,rgba(0,0,0,1) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: radial-gradient(ellipse at center,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.21) 36%,rgba(0,0,0,0.28) 45%,rgba(0,0,0,1) 80%,rgba(0,0,0,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#000000',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
     transition: 0.2s all;
 }

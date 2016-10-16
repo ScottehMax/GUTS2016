@@ -4,7 +4,9 @@
  */
 class Item{
   constructor(n){this.name = n;}
-  degrade(){this.durability--;}
+  degrade(){
+    this.durability--;
+  }
 }
 
 exports.Item = Item;
