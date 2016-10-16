@@ -12,8 +12,14 @@
   <div id="hud">
     <div id="hud__weapon"></div>
     <div id="hud__armour"></div>
-    <div id="hud__health">100</div>
-    <div id="hud__xp">999</div>
+    <div id="hud__health">
+      Health<br>
+      <span id="hud__health--text"></span>
+    </div>
+    <div id="hud__xp">
+      XP<br>
+      <span id="hud__xp--text"></span>
+    </div>
     <div id="hud__messages"></div>
   </div>
 
@@ -140,13 +146,13 @@
 
             // draw wall
             if (i < 10 && (board[i+1][j].type !== 'solid' && board[i+1][j].type !== 'abyss')) {
-              $('#game__walls').append('<div class="wall--b" style="bottom: ' + (11 - i - 1) * 64 + 'px; left: ' + j * 64 + 'px"><img src="/img/tiles/stone3.png"></div>');
+              $('#game__walls').append('<div class="wall--b" style="bottom: ' + (11 - i - 1) * 64 + 'px; left: ' + j * 64 + 'px"><img src="/img/tiles/woodWall.png"></div>');
             }
             if (j > 0 && (board[i][j-1].type !== 'solid' && board[i][j-1].type !== 'abyss')) {
-              $('#game__walls').append('<div class="wall--l" style="bottom: ' + (11 - i) * 64 + 'px; left: ' + j * 64 + 'px"><img src="/img/tiles/stone3.png"></div>');
+              $('#game__walls').append('<div class="wall--l" style="bottom: ' + (11 - i) * 64 + 'px; left: ' + j * 64 + 'px"><img src="/img/tiles/woodWall.png"></div>');
             }
             if (j < 10 && (board[i][j+1].type !== 'solid' && board[i][j+1].type !== 'abyss')) {
-              $('#game__walls').append('<div class="wall--r" style="bottom: ' + (11 - i - 1) * 64 + 'px; left: ' + j * 64 + 'px"><img src="/img/tiles/stone3.png"></div>');
+              $('#game__walls').append('<div class="wall--r" style="bottom: ' + (11 - i - 1) * 64 + 'px; left: ' + j * 64 + 'px"><img src="/img/tiles/woodWall.png"></div>');
             }
           } else {
             if (row[j].occupied != null) {
@@ -305,8 +311,8 @@
         if (cmd.type != undefined) {
           switch(cmd.type) {
             case 'map':
-            $('#hud__health').text(cmd.player.health);
-            $('#hud__xp').text(cmd.player.xp);
+            $('#hud__health--text').text(cmd.player.health);
+            $('#hud__xp--text').text(cmd.player.xp);
             populate(cmd.map);
           case 'room_info':
             var result_string = '';
