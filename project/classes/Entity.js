@@ -6,9 +6,10 @@
 
 var Weapon = require('./Weapon.js').Weapon;
 var Mob = require('./Mob.js').Mob;
+var utils = require('../utils.js');
 
 const ATTACK_XP = 35;
-const XP_LEVEL_UP_SCORE = 5;
+const XP_LEVEL_UP_SCORE = 100;
 
 class Entity {
   constructor(name, y, x, h, floor, start_weapon, start_armour, level, sprite) {
@@ -86,15 +87,24 @@ class Entity {
   take_damage(ent, dam) {
     // dam is the damage from either a weapon (e.g. weapon.attack = dam = 5 or lava.damage = dam = 15)
     // whenever these objects perform an action that causes damage to the entity
+    console.log('ent name ' +  ent.name);
+    console.log('ent health ' + ent.health);
+    console.log('this name ' + this.name);
+    console.log('this dam ' + dam);
+    console.log('this health ' + this.health);
     if (this.items['armour'] && dam > this.items['armour'].def) {
-      this.health -= (dam - this.items['armour'].def);
+      dam = dam - this.items['armour'].def
+      // this.health -= (dam - this.items['armour'].def);
     } else if (this.items['armour'] && this.items['armour'].def > dam) {
-      return;
+      dam = 1;
+      // this.health -= 1;
     } else if (!this.items['armour']) {
-      this.health -= dam;
+      // this.health -= dam;
+      dam = dam;
     }
-
+    this.health -= dam
     if(this.health <= 0) this.die();
+    return dam;
   }
 
   lose_item(item) {
@@ -103,6 +113,7 @@ class Entity {
   }
 
   attack(ent){
+    // you're attacking ent
     // if (!this.alive) return;
     // Entity uses its weapon
     var weapon = this.items['weapon'];
@@ -112,7 +123,7 @@ class Entity {
       weapon = new Weapon('Fists', this.level * 2, 999); // Will need to adapt this to a better alternative
     }
 
-    ent.take_damage(this, weapon.attack);
+    ent.take_damage(/* from */this, weapon.attack);
     weapon.degrade();
 
     if(weapon.durability <= 0) {
@@ -120,7 +131,7 @@ class Entity {
     }
 
     if(ent.health <= 0) {
-      this.xp += ATTACK_XP;
+      this.xp += (20 * ent.level) * (ent.legendary == true ? 5 : 1);
     }
     if(this.xp >= (this.level * XP_LEVEL_UP_SCORE)) {
       this.xp = 0;

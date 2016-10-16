@@ -6,7 +6,7 @@ var Potion = require('./Potion.js').Potion;
 var message = require('../utils.js').sendMessage;
 
 const ATTACK_XP = 35;
-const XP_LEVEL_UP_SCORE = 5;
+const XP_LEVEL_UP_SCORE = 100;
 
 var Global = require('../global.js');
 /*
@@ -18,8 +18,10 @@ class Player extends Entity {
   }
   
   take_damage(ent, dam) {
-    message(this, ent.name + ' attacked you for ' + dam + ' damage', 1);
-    super.take_damage(ent, dam);
+    var dmg = super.take_damage(ent, dam);
+    console.log('player ' + dam)
+    message(this, ent.name + ' attacked you for ' + dmg + ' damage', 1);
+    // super.take_damage(ent, dam);
   }
   
   attack(ent) {
@@ -29,10 +31,10 @@ class Player extends Entity {
       weapon = new Weapon('Fists', 5, 999); // Will need to adapt this to a better alternative
     }
 
-    ent.take_damage(this, weapon.attack);
+    var dmg = ent.take_damage(this, weapon.attack);
     weapon.degrade();
 
-    message(this, 'You attacked ' + ent.name + ' for ' + weapon.attack + ' damage', 1);
+    message(this, 'You attacked ' + ent.name + ' for ' + dmg + ' damage', 1);
 
     if(weapon.durability <= 0) {
       message(this, 'Your ' + weapon.name + ' has broken.', 1);
@@ -42,9 +44,12 @@ class Player extends Entity {
     if(ent.health <= 0) {
       message(this, 'You killed ' + ent.name, 1);
 
-      this.xp += ATTACK_XP;
+      this.xp += (20 * ent.level) * (ent.legendary == true ? 5 : 1);
     }
-    if(this.xp >= (this.level * XP_LEVEL_UP_SCORE)) this.level_up();
+    if(this.xp >= (this.level * XP_LEVEL_UP_SCORE)) {
+      this.xp = 0;
+      this.level_up();
+    }
   }
 
   consume(item){
@@ -67,7 +72,7 @@ class Player extends Entity {
 
     if(item instanceof Potion && this.health < this.maxhealth){
       message(this, 'Acquired a potion, +' + item.points + ' health', 1);
-      if(this.health+item.points < this.maxhealth)
+      if(this.health+item.points <= this.maxhealth)
         this.health += item.points;
       else
         this.health = this.maxhealth;
@@ -91,8 +96,8 @@ class Player extends Entity {
   }
 
   level_up(){
-    message(this, 'You levelled up to level ' + this.level, 2);
     super.level_up();
+    message(this, 'You levelled up to level ' + this.level, 2);
   }
 }
 

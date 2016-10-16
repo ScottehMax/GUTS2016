@@ -4,6 +4,7 @@
 var Global = require('./project/global.js');
 var user = require('./project/user.js');
 var utils = require('./project/utils.js');
+var chain = require('./project/chain.js');
 var dungeon = require('./project/classes/Dungeon_Classes.js');
 var player = require('./project/classes/Player.js');
 
@@ -41,7 +42,7 @@ wsServer.on('request', function (request) {
 
   var connection = request.accept('echo-protocol', request.origin);
   var new_user = new user.User(connection);
-  var player_obj = new player.Player(null, null, null, 100, null, null, null, 0, 'player1');
+  var player_obj = new player.Player(chain.gen_name(), null, null, 100, null, null, null, 1, 'player1');
   new_user.player = player_obj;
   player_obj.uuid = new_user.uuid;
   connection.player = player_obj;

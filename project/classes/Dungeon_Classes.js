@@ -341,7 +341,8 @@ class Floor {
       location = this.random_location(this.rooms[randint(0, this.rooms.length-1)]);
     }
     if (!legendary) {
-      var mob = new Mob(type, location[0], location[1], 20, this, null, null, 1, 'slime' + randint(1,3), 10);  
+      var mob = new Mob(type, location[0], location[1], 20, this, null, null, this.index, 'slime' + randint(1,3), 10);  
+      mob.legendary = false;
     } else {
       var legend_name = chain.gen_name()
       var weapon = randint(1, 3) == 1 ? new Weapon(chain.gen_weapon(), randint(20, 25), 5000) : null;
@@ -349,6 +350,7 @@ class Floor {
       var armourtype = ['Chestplate', 'Cuirass', 'Chainmail'][randint(0, 2)];
       var armour = randint(1, 3) == 1 ? new Armour(armourmetal[0] + ' ' + armourtype, armourmetal[1], 5000) : null;
       var mob = new Mob(legend_name + ', the ' + descriptor + ' ' + type, location[0], location[1], randint(60, 80), this, weapon, armour, this.index, 'slime' + randint(1,3), 10);  
+      mob.legendary = true;
     }
     
     this.npcs[Object.keys(this.npcs).length] = mob;
@@ -508,7 +510,7 @@ class Floor {
     var floor = this;
     var f = function() {
       // spawn a mob every 5s on average
-      if (randint(1, 50) == 1) {
+      if (randint(1, Math.floor(50 / floor.index)) == 1) {
         floor.spawn_mob();
       }
 
@@ -581,8 +583,10 @@ class Floor {
     var res = {
       type: "map",
       player: {
+        name: player.name,
         health: player.health,
-        xp: player.xp
+        xp: player.xp,
+        level: player.level
       },
       map: v
     };

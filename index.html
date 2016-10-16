@@ -119,6 +119,8 @@
               alive = false;
               break;
             case 'map':
+              var plyr = cmd.player;
+              $('#info').html('Name: ' + plyr.name + ' | Health: ' + plyr.health + ' | Exp: ' + plyr.xp + ' | Level: ' + plyr.level);
               var board = cmd.map;
               // console.log(board);
               // build text thing here
@@ -172,9 +174,9 @@
                     case 'up_stairs':
                       map_string += '<';
                       break;
-                    default:
-                      map_string += '?';
-                      break;
+                    // default:
+                    //   map_string += '?';
+                    //   break;
                     }
                   }
                 }
@@ -224,6 +226,8 @@
       Room list is here, lads.
     </div>
   <span id="fuck" style="font-family: Courier;letter-spacing: 8px;">Placeholder.</span>
+  <br>
+  <span id="info" style="font-family: Courier;">Name: jim | Health: 1337 | Exp: 420</span>
   <br>
   <span id="messagebox" style="font-family: Courier;">nice meme</span>
   </center>
