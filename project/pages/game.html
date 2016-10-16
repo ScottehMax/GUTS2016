@@ -161,6 +161,10 @@
                 canvas.sprites.drawImage(images['sprites/' + spr.sprite + '_' + spr.direction], j * 64, i * 64);
               } else if (row[j].occupied.type == 'Potion') {
                 canvas.sprites.drawImage(images['items/' + row[j].occupied.sprite], j * 64, i * 64);
+              } else if (row[j].occupied.type == 'Weapon') {
+                canvas.sprites.drawImage(images['items/' + row[j].occupied.sprite], j * 64, i * 64);
+              } else if (row[j].occupied.type == 'Armour') {
+                canvas.sprites.drawImage(images['items/' + row[j].occupied.sprite], j * 64, i * 64);
               }
             }
 
@@ -245,7 +249,7 @@
       'items/potion.png',
       'items/armour1.png',
       'items/axe1.png',
-      'items/mace1.png'
+      'items/mace1.png',
       'items/sword1.png'
     ];
 

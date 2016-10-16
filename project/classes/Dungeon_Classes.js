@@ -80,7 +80,7 @@ class Floor {
       this.create_tunnel(this.rooms[this.rooms.length - 1], this.rooms[this.closest_room(this.rooms[this.rooms.length - 1])]);
     };
 
-    var itemcount = randint(0, 4);
+    var itemcount = randint(10, 20);
 
     for (var i = 0; i < itemcount; i++) {
       this.spawn_item()
@@ -346,11 +346,17 @@ class Floor {
     } else {
       var legend_name = chain.gen_name()
       var weapon = randint(1, 3) == 1 ? new Weapon(chain.gen_weapon(), randint(20, 25), 5000) : null;
-      weapon.type = 'sword';
-      weapon.sprite = 'sword1';
+      if (weapon != null) {
+        weapon.type = 'Weapon';
+        weapon.sprite = 'sword1';
+      }
       var armourmetal = [['Platinum', 20], ['Gold', 10], ['Silver', 5], ['Iron', 3]][randint(0, 3)];
       var armourtype = ['Chestplate', 'Cuirass', 'Chainmail'][randint(0, 2)];
       var armour = randint(1, 3) == 1 ? new Armour(armourmetal[0] + ' ' + armourtype, armourmetal[1], 5000) : null;
+      if (armour != null) {
+        armour.sprite = 'armour1';
+        armour.type = "Armour";        
+      }
       var mob = new Mob(legend_name + ', the ' + descriptor + ' ' + type, location[0], location[1], randint(60, 80), this, weapon, armour, this.index, 'slime' + randint(1,3), 10);  
       mob.legendary = true;
     }
@@ -397,7 +403,7 @@ class Floor {
     if (type == 'Weapon') {
       if (legendary) {
         var item = new Weapon(chain.gen_weapon(), randint(15, 25), 5000);
-        item.type = 'sword';
+        item.type = 'Weapon';
         item.sprite = 'sword1';
       } else {
         var weaponmetal = [['Platinum', 20], ['Gold', 10], ['Silver', 5], ['Iron', 3]][randint(0, 3)];
@@ -415,6 +421,8 @@ class Floor {
         var armourtype = ['Chestplate', 'Cuirass', 'Chainmail'][randint(0, 2)];
         var item = new Armour(armourmetal[0] + ' ' + armourtype, armourmetal[1], 100);
       }
+      item.type = "Armour";
+      item.sprite = 'armour1';
     }
 
 
