@@ -7,7 +7,6 @@ var Global = require('../global.js');
 class Player extends Entity {
   constructor(name, y, x, h, floor, start_sword, start_armour, level) {
     super(name, y, x, h, floor, start_sword,  start_armour, level);
-    this.alive = true;
   }
 
   erase() {
@@ -22,7 +21,6 @@ class Player extends Entity {
   die() {
     super.die();
     this.erase();
-    this.alive = false;
     Global.users[this.uuid].socket.sendUTF(JSON.stringify({"type": "death"}));
   }
 }

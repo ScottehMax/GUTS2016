@@ -330,8 +330,7 @@ class Floor {
 
   try_move(player, y, x) {
     // returns true if player can move, false otherwise
-    if (!player.alive) return false;
-    if (y > this.height - 1 || x > this.width - 1) return false;
+    if (y < 0 || x < 0 || y > this.height - 1 || x > this.width - 1) return false;
     if (!!this.grid[y][x].occupied) {
       console.log(this.grid[y][x].occupied);
       // interact with whatever entity is there lmao
@@ -341,7 +340,9 @@ class Floor {
       case 'solid':
         return false;
       case 'closed_door':
-        this.grid[y][x].type = 'open_door';
+        if (player instanceof Player) {
+          this.grid[y][x].type = 'open_door';
+        }
         // open the door
         return false;
       case 'open_door':
@@ -406,18 +407,18 @@ class Floor {
       }
       // loop over npcs here and make them do shit
       for (var npc in floor.npcs) {
-        if (randint(1, 5) == 1) {
-          floor.npcs[npc].idle();
+        if (floor.npcs[npc].ticksleft == 0) {
+          floor.npcs[npc].random_move();
         }
       }
       // console.log(floor.players);
       for (var player in floor.players) {
-        console.log(floor.players[player].health);
+        // console.log(floor.players[player].health);
         // 
-        // burn hurts 1 dmg every 2 seconds and lasts for 10 seconds on average
+        // burn hurts 2 dmg every 2 seconds and lasts for 10 seconds on average
         if (floor.players[player].burning) {
           if (randint(1, 20) == 1) {
-            floor.players[player].health -= 1;
+            floor.players[player].take_damage(2);
           } 
           if (randint(1, 100) == 1) {
             floor.players[player].burning = false;
@@ -426,8 +427,8 @@ class Floor {
         if (floor.players[player].overwatch) {
           Global.users[floor.players[player].uuid].socket.sendUTF(floor.pretty_print(floor.grid, '<br>'));
         } else {
-          Global.users[floor.players[player].uuid].socket.sendUTF(floor.pretty_print(floor.view(floor.players[player].y, floor.players[player].x, DRAW_DISTANCE), '<br>'));  
-          // floor.send_tilemap(floor.players[player]);
+          // Global.users[floor.players[player].uuid].socket.sendUTF(floor.pretty_print(floor.view(floor.players[player].y, floor.players[player].x, DRAW_DISTANCE), '<br>'));  
+          floor.send_tilemap(floor.players[player]);
         }
         
         //console.log(floor.players[player].socket);
@@ -442,10 +443,18 @@ class Floor {
     for (var y = 0; y < v.length; y++) {
       for (var x = 0; x < v[0].length; x++) {
         if (v[y] == undefined) { v[y] = [] }
-        if (v[y][x] == undefined) { v[y][x] = {type: 'solid', sprite: 1, item: null}; continue; }
+        if (v[y][x] == undefined) { v[y][x] = {type: 'abyss', sprite: 1, item: null, occupied: ''}; continue; }
         var cur = v[y][x];
         // v[y][x] = {type: cur.type, sprite: cur.sprite, item: cur.item, occupied: !!cur.occupied ? cur.occupied.constructor.name : false};
-        v[y][x] = {type: cur.type, sprite: cur.sprite, item: cur.item, occupied: utils.simpleStringify(cur.occupied)};
+        var occupied_info = null;
+        if (!!v[y][x].occupied) {
+          if (v[y][x].occupied instanceof Player) {
+            occupied_info = {symbol: '@', type: 'Player'};
+          } else if (v[y][x].occupied instanceof Mob) {
+            occupied_info = {symbol: '&', type: 'Mob'};
+          }
+        }
+        v[y][x] = {type: cur.type, sprite: cur.sprite, item: cur.item, occupied: occupied_info != null ? JSON.stringify(occupied_info) : ''};
       }
     }
     var res = {type: "map", map: v};

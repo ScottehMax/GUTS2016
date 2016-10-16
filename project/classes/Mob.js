@@ -14,7 +14,7 @@ class Mob extends Entity {
     this.hunting = false;
   }
 
-  idle() {
+  random_move() {
     // Mob aimlessly wanders, searching for player
     var player;
     var directions = ['n', 'e', 'w', 's'];
@@ -27,6 +27,11 @@ class Mob extends Entity {
       // player = this.search();
     // }
     // this.hunt(player);
+  }
+
+  targeted_move() {
+    //fuck
+    null;
   }
 
   search(){

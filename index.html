@@ -87,7 +87,7 @@
 
       socket.addEventListener("message", function(event) {
         // this runs when the socket receives a message from the server
-        try {
+        // try {
           // res contains the json representation of the protocol
           var cmd = JSON.parse(event.data);
 
@@ -112,16 +112,76 @@
               console.log(cmd);
               break;
             case 'death':
-              show_roomlist();
+              get_rooms();
+              alive = false;
+              break;
+            case 'map':
+              alive = true;
+              var board = cmd.map;
+              // console.log(board);
+              // build text thing here
+              var map_string = ''
+              for (var i = 0; i < board.length; i++) {
+                var row = board[i];
+                for (var j = 0; j < row.length; j++) {
+                  console.log(row[j].occupied != '');
+                  if (row[j].occupied != '') {
+                    var occupied_info = JSON.parse(row[j].occupied);
+                    console.log(occupied_info);
+                    if (occupied_info.type == 'Player') {
+                      map_string += '@';
+                    } else if (occupied_info.type == 'Mob') {
+                      map_string += '&';
+                    }
+                  } else {
+                    switch(row[j].type) {
+                    case 'floor':
+                    case 'tunnel':
+                      map_string += '.';
+                      break;
+                    case 'solid':
+                      map_string += '#';
+                      break;
+                    case 'lava':
+                      map_string += '%';
+                      break;
+                    case 'water':
+                      map_string += '~';
+                      break;
+                    case 'closed_door':
+                      map_string += '+';
+                      break;
+                    case 'open_door':
+                      map_string += '\'';
+                      break;
+                    case 'abyss':
+                      map_string += 'X';
+                      break;
+                    case 'down_stairs':
+                      map_string += '>';
+                      break;
+                    case 'up_stairs':
+                      map_string += '<';
+                      break;
+                    default:
+                      map_string += '?';
+                      break;
+                    }
+                  }
+                }
+                map_string += '<br>'
+              }
+              console.log(map_string);
+              $('#fuck').html(map_string);
+              break;
             }
           }
 
-        } catch (e) {
-          $('#fuck').html(event.data);
-          alive = true;
-          // console.log(e);
-        }
-        console.log('[SERVER] ' + event.data);
+        // } catch (e) {
+        //   // $('#fuck').html(event.data);
+        //   console.log(e);
+        // }
+        // console.log('[SERVER] ' + event.data);
       });
 
       // when an error happens, this is triggered
