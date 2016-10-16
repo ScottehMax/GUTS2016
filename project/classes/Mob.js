@@ -9,9 +9,14 @@ var utils = require('../utils.js');
 
 const VIEW_DIST = 5;
 class Mob extends Entity {
-  constructor(name, y, x, h, floor, start_sword, start_armour, level) {
+  constructor(name, y, x, h, floor, start_sword, start_armour, level, ticks) {
     super(name, y, x, h, floor, start_sword, start_armour, level);
     this.hunting = false;
+    // how many ticks before it can move
+    this.ticks = ticks;
+    this.alive = true;
+    // mutate this one tbh
+    this.ticksleft = ticks;
   }
 
   random_move() {

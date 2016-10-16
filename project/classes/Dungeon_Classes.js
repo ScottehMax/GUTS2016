@@ -294,7 +294,9 @@ class Floor {
   }
 
   spawn_player(player, loc) {
+    player.health = 100;
     this.players[player.uuid] = player;
+    player.alive = true;
     this.dungeon.players[player.uuid] = player;
     player.floor = this;
     if (loc == undefined) {
@@ -319,7 +321,7 @@ class Floor {
     while (this.grid[location[0]][location[1]].occupied) {
       location = this.random_location(this.rooms[randint(0, this.rooms.length-1)]);
     }
-    var mob = new Mob('bob', location[0], location[1], 20, this, null, null, 1);
+    var mob = new Mob('bob', location[0], location[1], 20, this, null, null, 1, 10);
     this.npcs[Object.keys(this.npcs).length] = mob;
     mob.y = location[0];
     mob.x = location[1];
@@ -409,6 +411,9 @@ class Floor {
       for (var npc in floor.npcs) {
         if (floor.npcs[npc].ticksleft == 0) {
           floor.npcs[npc].random_move();
+          floor.npcs[npc].ticksleft = floor.npcs[npc].ticks;
+        } else {
+          floor.npcs[npc].ticksleft--;
         }
       }
       // console.log(floor.players);

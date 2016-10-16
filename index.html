@@ -25,6 +25,7 @@
     }
 
     function create_room() {
+      alive = true;
       $('#welcome_step1').fadeOut(300).delay(0.3).css('height', 0);
       $('#mainscreen').fadeOut(300).delay(0.3).css('height', 0);
       socket.send(JSON.stringify({uuid: uuid, type: 'create'}));
@@ -39,6 +40,7 @@
         $('#roomlist').css('top', 0).fadeOut(300).delay(0.3);
         window.scrollTo(0, 1);
       })
+      alive = true;
       show_game();
       socket.send(JSON.stringify({uuid: uuid, type: 'join', room_index: index}));
     }
@@ -116,7 +118,6 @@
               alive = false;
               break;
             case 'map':
-              alive = true;
               var board = cmd.map;
               // console.log(board);
               // build text thing here
