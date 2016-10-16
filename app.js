@@ -64,12 +64,12 @@ wsServer.on('request', function (request) {
       cmd = {};
     }
 
-    console.log(cmd);
+    // console.log(cmd);
 
     switch(cmd.type) {
     case 'move':
       // console.log(Global);
-      console.log(Global);
+      // console.log(Global);
       Global.users[cmd.uuid].player.move(cmd['dir']);
       break;
     case 'get_rooms':

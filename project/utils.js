@@ -15,8 +15,9 @@ exports.distance = function(y1, x1, y2, x2) {
     return Math.sqrt(Math.pow(Math.abs(y1 - y2), 2) + Math.pow(Math.abs(x1 - x2), 2));
 }
 
-exports.bearing = function(y1, y2, x1, x2) {
-    return Math.atan2(x2, x1, y2, y1) / Math.PI * 360
+exports.bearing = function(a1, a2, b1, b2) {
+    var res = Math.atan2(b2 - a2, b1 - a1)  / Math.PI * 180;
+    return res < 0 ? res + 180 : res;
 }
 
 exports.censor = function(censor) {

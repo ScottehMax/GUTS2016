@@ -404,13 +404,13 @@ class Floor {
     var floor = this;
     var f = function() {
       // spawn a mob every 20s on average
-      if (randint(1, 200) == 1) {
+      if (randint(1, 20) == 1) {
         floor.spawn_mob();
       }
       // loop over npcs here and make them do shit
       for (var npc in floor.npcs) {
         if (floor.npcs[npc].ticksleft == 0) {
-          floor.npcs[npc].random_move();
+          floor.npcs[npc].search();
           floor.npcs[npc].ticksleft = floor.npcs[npc].ticks;
         } else {
           floor.npcs[npc].ticksleft--;
