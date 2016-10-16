@@ -32,7 +32,7 @@ button {
     top: 0;
     left: calc((100vw - 704px) / 2);
     display: none;
-    z-index: 100;
+    z-index: 200;
 }
 
 #hudCont {
@@ -116,6 +116,7 @@ button {
     bottom: 0;
     left: calc((100vw - 704px) / 2);
     display: none;
+    z-index: 200;
 }
 
 #mobileControlsCont {
@@ -123,7 +124,6 @@ button {
     height: 180px;
     margin: 35px auto 0 auto;
     position: relative;
-    z-index: 101;
 }
 
 #mobileControlsCont > #l {
