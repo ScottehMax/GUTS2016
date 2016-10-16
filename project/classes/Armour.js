@@ -7,9 +7,10 @@
 var Item = require('./Item.js').Item;
 
 class Armour extends Item{
-  constructor(name, dur){
+  constructor(name, def, dur){
     super(name);
     this.durability = dur;
+    this.def = def;
   }
 }
 

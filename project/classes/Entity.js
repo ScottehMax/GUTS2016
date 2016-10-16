@@ -11,7 +11,7 @@ const ATTACK_XP = 35;
 const XP_LEVEL_UP_SCORE = 5;
 
 class Entity {
-  constructor(name, y, x, h, floor, start_sword, start_armour, level, sprite) {
+  constructor(name, y, x, h, floor, start_weapon, start_armour, level, sprite) {
     this.name = name;
     this.y = y;
     this.x = x;
@@ -19,7 +19,7 @@ class Entity {
     this.health = h + this.bonus_health;
     this.maxhealth = h + this.bonus_health;
     this.floor = floor;
-    this.items = {'sword': start_sword, 'armour': start_armour};
+    this.items = {'weapon': start_weapon, 'armour': start_armour};
     this.level = level;
     this.direction = 'n';
     this.xp = 0;
@@ -84,9 +84,15 @@ class Entity {
   }
 
   take_damage(ent, dam) {
-    // dam is the damage from either a sword (e.g. sword.attack = dam = 5 or lava.damage = dam = 15)
+    // dam is the damage from either a weapon (e.g. weapon.attack = dam = 5 or lava.damage = dam = 15)
     // whenever these objects perform an action that causes damage to the entity
-    this.health -= dam;
+    if (this.items['armour'] && dam > this.items['armour'].def) {
+      this.health -= (dam - this.items['armour'].def);
+    } else if (this.items['armour'] && this.items['armour'].def > dam) {
+      return;
+    } else if (!this.items['armour']) {
+      this.health -= dam;
+    }
 
     if(this.health <= 0) this.die();
   }
@@ -97,33 +103,40 @@ class Entity {
   }
 
   attack(ent){
-    if (!this.alive) return;
+    // if (!this.alive) return;
     // Entity uses its weapon
-    var weapon = this.items['sword'];
+    var weapon = this.items['weapon'];
+
     if(weapon == null){
-      weapon = new Weapon('Fists', 10, 999); // Will need to adapt this to a better alternative
+
+      weapon = new Weapon('Fists', this.level * 2, 999); // Will need to adapt this to a better alternative
     }
 
     ent.take_damage(this, weapon.attack);
     weapon.degrade();
 
     if(weapon.durability <= 0) {
-      this.lose_item('sword');
+      this.lose_item('weapon');
     }
 
     if(ent.health <= 0) {
       this.xp += ATTACK_XP;
     }
-    if(this.xp >= (this.level * XP_LEVEL_UP_SCORE)) this.level_up();
+    if(this.xp >= (this.level * XP_LEVEL_UP_SCORE)) {
+      this.xp = 0;
+      this.level_up();
+    }
   }
 
   consume(item){
     // User consumes item whatever it may be
     var i = this.items;
 
-    if(item instanceof Weapon && i['sword'] == null) {
-      i['sword'] = item;
+    if(item instanceof Weapon && i['weapon'] == null) {
+      i['weapon'] = item;
     }
+
+    console.log(i);
 
     if(item instanceof Armour && i['armour'] == null) {
       i['armour'] = item;
@@ -149,7 +162,7 @@ class Entity {
     this.alive = false;
     var i = this.items;
     // Drop any items the entity was carrying
-    if(i['sword'] != null) console.log('DROPPED ' + i['sword'])// this.dungeon.grid[this.y][this.x].item(sword)
+    if(i['weapon'] != null) console.log('DROPPED ' + i['weapon'])// this.dungeon.grid[this.y][this.x].item(weapon)
     // Erase entity
     this.erase()
   }

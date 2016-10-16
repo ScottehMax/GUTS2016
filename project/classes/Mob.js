@@ -10,8 +10,8 @@ var utils = require('../utils.js');
 
 const VIEW_DIST = 5;
 class Mob extends Entity {
-  constructor(name, y, x, h, floor, start_sword, start_armour, level, sprite, ticks) {
-    super(name, y, x, h, floor, start_sword, start_armour, level, sprite);
+  constructor(name, y, x, h, floor, start_weapon, start_armour, level, sprite, ticks) {
+    super(name, y, x, h, floor, start_weapon, start_armour, level, sprite);
     this.hunting = false;
     // how many ticks before it can move
     this.ticks = ticks;
@@ -40,23 +40,23 @@ class Mob extends Entity {
   }
 
   targeted_move(y, x) {
-    var bearing = utils.bearing(this.x, this.y, x, y);
-    console.log(this.x);
-    console.log(this.y);
-    console.log(x);
-    console.log(y);
-    console.log(bearing);
+    var bearing = utils.bearing(this.floor.width - this.x, this.floor.height - this.y, this.floor.width - x, this.floor.height - y);
+    // console.log(this.x);
+    // console.log(this.y);
+    // console.log(x);
+    // console.log(y);
+    // console.log(bearing);
     var dir;
     if ((bearing > 315 && bearing < 360) || bearing == 0 || (bearing > 0 && bearing <= 45)) {
-      dir = 'e';
-    } else if (bearing > 45 && bearing <= 135) {
-      dir = 's';
-    } else if (bearing > 135 && bearing <= 225) {
       dir = 'w';
-    } else if (bearing > 225 && bearing <= 315) {
+    } else if (bearing > 45 && bearing <= 135) {
       dir = 'n';
+    } else if (bearing > 135 && bearing <= 225) {
+      dir = 'e';
+    } else if (bearing > 225 && bearing <= 315) {
+      dir = 's';
     }
-    console.log(dir);
+    // console.log(dir);
     this.move(dir);
   }
 
@@ -97,7 +97,7 @@ class Mob extends Entity {
   die(){
     var i = this.items;
     // Drop any items the entity was carrying
-    if(i['sword'] != null) console.log('DROPPED ' + i['sword'])// this.dungeon.grid[this.y][this.x].item(sword)
+    if(i['weapon'] != null) console.log('DROPPED ' + i['weapon'])// this.dungeon.grid[this.y][this.x].item(weapon)
     // Erase entity
     super.die();
     this.erase();

@@ -14,6 +14,7 @@ var chain = require('../chain.js');
 
 var Mob = require('./Mob.js').Mob;
 var Weapon = require('./Weapon.js').Weapon;
+var Armour = require('./Armour.js').Armour;
 var Potion = require('./Potion.js').Potion;
 var Player = require('./Player.js').Player;
 var randint = utils.randint;
@@ -78,6 +79,12 @@ class Floor {
       this.add_subsequent_room();
       this.create_tunnel(this.rooms[this.rooms.length - 1], this.rooms[this.closest_room(this.rooms[this.rooms.length - 1])]);
     };
+
+    var itemcount = randint(0, 4);
+
+    for (var i = 0; i < itemcount; i++) {
+      this.spawn_item()
+    }
 
     // put stairs in random room
     var room_index = randint(0, this.rooms.length - 1)
@@ -323,11 +330,27 @@ class Floor {
   }
 
   spawn_mob() {
+    // legendary spawn chance
+    var legendary = randint(1, 2) == 1 ? true : false;
+
+    var type = ['Slime', 'Kobold', 'Goblin'][randint(0, 2)];
+    var descriptor = ['Rare', 'Legendary', 'Powerful', 'Ruthless', 'Mystic', 'Menacing', 'Wild', 'Crazy', 'Enraged'][randint(0, 8)];
+
     var location = this.random_location(this.rooms[randint(0, this.rooms.length-1)]);
     while (this.grid[location[0]][location[1]].occupied) {
       location = this.random_location(this.rooms[randint(0, this.rooms.length-1)]);
     }
-    var mob = new Mob(chain.gen_name(), location[0], location[1], 20, this, null, null, 1, 'slime' + randint(1,3), 10);
+    if (!legendary) {
+      var mob = new Mob(type, location[0], location[1], 20, this, null, null, 1, 'slime' + randint(1,3), 10);  
+    } else {
+      var legend_name = chain.gen_name()
+      var weapon = randint(1, 3) == 1 ? new Weapon(chain.gen_weapon(), randint(20, 25), 5000) : null;
+      var armourmetal = [['Platinum', 20], ['Gold', 10], ['Silver', 5], ['Iron', 3]][randint(0, 3)];
+      var armourtype = ['Chestplate', 'Cuirass', 'Chainmail'][randint(0, 2)];
+      var armour = randint(1, 3) == 1 ? new Armour(armourmetal[0] + ' ' + armourtype, armourmetal[1], 5000) : null;
+      var mob = new Mob(legend_name + ', the ' + descriptor + ' ' + type, location[0], location[1], randint(60, 80), this, weapon, armour, this.index, 'slime' + randint(1,3), 10);  
+    }
+    
     this.npcs[Object.keys(this.npcs).length] = mob;
     mob.y = location[0];
     mob.x = location[1];
@@ -349,13 +372,70 @@ class Floor {
     }
   }
 
+  spawn_item() {
+    var type = ['Weapon', 'Armour'][randint(0, 1)];
+
+    // legendary spawn chance
+    var legendary = randint(1, 2) == 1 ? true : false;
+
+    var tries = 0;
+
+    var location = this.random_location(this.rooms[randint(0, this.rooms.length-1)]);
+    while (this.grid[location[0]][location[1]].item != null) {
+      location = this.random_location(this.rooms[randint(0, this.rooms.length-1)]);
+      tries++;
+
+      if (tries == 10) {
+        return;
+      }
+    }
+
+    if (type == 'Weapon') {
+      if (legendary) {
+        var item = new Weapon(chain.gen_weapon(), randint(15, 25), 5000);  
+      } else {
+        var weaponmetal = [['Platinum', 20], ['Gold', 10], ['Silver', 5], ['Iron', 3]][randint(0, 3)];
+        var weapontype = ["Sword", 'Axe', 'Mace'][randint(0, 2)];
+        var item = new Weapon(weaponmetal[0] + ' ' + weapontype, weaponmetal[1], 100);
+      }
+    } else {
+      var armourtype = ['Chestplate', 'Cuirass', 'Chainmail'][randint(0, 2)];
+      if (legendary) {
+        var item = new Armour(chain.gen_weapon() + ' ' + armourtype, randint(15, 25), 5000);  
+      } else {
+        var armourmetal = [['Platinum', 20], ['Gold', 10], ['Silver', 5], ['Iron', 3]][randint(0, 3)];
+        var armourtype = ['Chestplate', 'Cuirass', 'Chainmail'][randint(0, 2)];
+        var item = new Armour(armourmetal[0] + ' ' + armourtype, armourmetal[1], 100);
+      }
+    }
+
+
+
+    item.y = location[0];
+    item.x = location[1];
+
+
+    if (!this.grid[item.y][item.x].occupied) {
+      this.grid[item.y][item.x].occupied = item;
+    }
+
+  }
+
   try_move(player, y, x) {
     // returns true if player can move, false otherwise
     if (y < 0 || x < 0 || y > this.height - 1 || x > this.width - 1) return false;
     if (!!this.grid[y][x].occupied) {
-      console.log(this.grid[y][x].occupied);
+      // console.log(this.grid[y][x].occupied);
       // interact with whatever entity is there lmao
       if (this.grid[y][x].occupied instanceof Potion) {
+        player.consume(this.grid[y][x].occupied);
+        this.grid[y][x].occupied = null;
+        return true;
+      } else if (this.grid[y][x].occupied instanceof Weapon) {
+        player.consume(this.grid[y][x].occupied);
+        this.grid[y][x].occupied = null;
+        return true;
+      } else if (this.grid[y][x].occupied instanceof Armour) {
         player.consume(this.grid[y][x].occupied);
         this.grid[y][x].occupied = null;
         return true;
@@ -489,6 +569,10 @@ class Floor {
             occupied_info = {symbol: '&', type: 'Mob', direction: v[y][x].occupied.direction, sprite: v[y][x].occupied.sprite};
           } else if (v[y][x].occupied instanceof Potion) {
             occupied_info = {symbol: '*', type: 'Potion', sprite: v[y][x].occupied.sprite};
+          } else if (v[y][x].occupied instanceof Weapon) {
+            occupied_info = {symbol: '\\', type: 'Weapon', sprite: v[y][x].occupied.sprite};
+          } else if (v[y][x].occupied instanceof Armour) {
+            occupied_info = {symbol: 'A', type: 'Armour', sprite: v[y][x].occupied.sprite};
           }
         }
         v[y][x] = {type: cur.type, sprite: cur.sprite, item: cur.item, occupied: occupied_info != null ? occupied_info : null};

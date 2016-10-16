@@ -19,7 +19,7 @@ exports.distance = function(y1, x1, y2, x2) {
 
 exports.bearing = function(a1, a2, b1, b2) {
     var res = Math.atan2(b2 - a2, b1 - a1)  / Math.PI * 180;
-    return res < 0 ? res + 180 : res;
+    return res < 0 ? res + 360 : res;
 }
 
 exports.censor = function(censor) {

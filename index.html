@@ -79,6 +79,7 @@
       // wait until the page is loaded to do this stuff
       status = "Not Connected";
       var url = "ws://localhost:9001";
+      var messagelist = [];
 
       // create socket object, everything will be sent over this
       /*var */socket = new WebSocket(url, "echo-protocol");
@@ -125,14 +126,21 @@
               for (var i = 0; i < board.length; i++) {
                 var row = board[i];
                 for (var j = 0; j < row.length; j++) {
-                  console.log(row[j].occupied != '');
-                  if (row[j].occupied != '') {
-                    var occupied_info = JSON.parse(row[j].occupied);
+                  // if (row[j].item != )
+                  if (row[j].occupied != null) {
+                    // console.log(row[j].occupied);
+                    var occupied_info = row[j].occupied;
                     console.log(occupied_info);
                     if (occupied_info.type == 'Player') {
                       map_string += '@';
                     } else if (occupied_info.type == 'Mob') {
                       map_string += '&';
+                    } else if (occupied_info.type == 'Potion') {
+                      map_string += '*';
+                    } else if (occupied_info.type == 'Weapon') {
+                      map_string += '\\';
+                    } else if (occupied_info.type == 'Armour') {
+                      map_string += 'A';
                     }
                   } else {
                     switch(row[j].type) {
@@ -175,6 +183,12 @@
               console.log(map_string);
               $('#fuck').html(map_string);
               break;
+            case 'message':
+              if (messagelist.length == 5) {
+                messagelist.shift();
+              }
+              messagelist.push(cmd.message);
+              $('#messagebox').html(messagelist.join('<br>'));
             }
           }
 
@@ -210,6 +224,8 @@
       Room list is here, lads.
     </div>
   <span id="fuck" style="font-family: Courier;letter-spacing: 8px;">Placeholder.</span>
+  <br>
+  <span id="messagebox" style="font-family: Courier;">nice meme</span>
   </center>
 </body>
 </html>

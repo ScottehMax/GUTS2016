@@ -13,8 +13,8 @@ var Global = require('../global.js');
  Player is a controllable entity
  */
 class Player extends Entity {
-  constructor(name, y, x, h, floor, start_sword, start_armour, level, sprite) {
-    super(name, y, x, h, floor, start_sword,  start_armour, level, sprite);
+  constructor(name, y, x, h, floor, start_weapon, start_armour, level, sprite) {
+    super(name, y, x, h, floor, start_weapon,  start_armour, level, sprite);
   }
   
   take_damage(ent, dam) {
@@ -24,9 +24,9 @@ class Player extends Entity {
   
   attack(ent) {
     // Entity uses its weapon
-    var weapon = this.items['sword'];
+    var weapon = this.items['weapon'];
     if(weapon == null){
-      weapon = new Weapon('Fists', 10, 999); // Will need to adapt this to a better alternative
+      weapon = new Weapon('Fists', 5, 999); // Will need to adapt this to a better alternative
     }
 
     ent.take_damage(this, weapon.attack);
@@ -36,7 +36,7 @@ class Player extends Entity {
 
     if(weapon.durability <= 0) {
       message(this, 'Your ' + weapon.name + ' has broken.', 1);
-      this.lose_item('sword');
+      this.lose_item('weapon');
     }
 
     if(ent.health <= 0) {
@@ -51,14 +51,18 @@ class Player extends Entity {
     // User consumes item whatever it may be
     var i = this.items;
 
-    if(item instanceof Weapon && i['sword'] == null) {
-      i['sword'] = item;
+    if((item instanceof Weapon && i['weapon'] == null) || (item instanceof Weapon && i['weapon'].attack < item.attack)) {
+      i['weapon'] = item;
       message(this, 'You acquired the ' + item.name, 1);
+    } else if (item instanceof Weapon && i['weapon'].attack >= item.attack) {
+      message(this, 'You acquired the ' + item.name + ', but your current weapon is stronger', 1);
     }
 
-    if(item instanceof Armour && i['armour'] == null) {
+    if((item instanceof Armour && i['armour'] == null) || (item instanceof Armour && i['armour'].def < item.def)) {
       i['armour'] = item;
       message(this, 'You acquired the ' + item.name, 1);
+    } else if (item instanceof Armour && i['armour'].def > item.def) {
+      message(this, 'You acquired the ' + item.name + ', but your current armour is stronger', 1);
     }
 
     if(item instanceof Potion && this.health < this.maxhealth){
