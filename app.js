@@ -2,17 +2,14 @@
 
 // Global variables stored in here for convenience
 var Global = require('./project/global.js');
+var config = require('./config.js');
 var user = require('./project/user.js');
 var utils = require('./project/utils.js');
 var chain = require('./project/chain.js');
 var dungeon = require('./project/classes/Dungeon_Classes.js');
 var player = require('./project/classes/Player.js');
 
-// lmao sorry eduroam is bad
-var WEB_PORT = 80;
-var PORT = 443;
-
-require('./project/server.js').startWebServer(WEB_PORT);
+require('./project/server.js').startWebServer(config.WEB_PORT);
 
 var MAX_USERS = 20;
 
@@ -25,8 +22,8 @@ var server = http.createServer(function (request, response) {
   response.end();
 });
 
-server.listen(PORT, function () {
-  console.log('[SCKT] WebSocket Server is listening on port ' + PORT);
+server.listen(config.SOCKET_PORT, function () {
+  console.log('[SCKT] WebSocket Server is listening on port ' + config.SOCKET_PORT);
 });
 
 // create websocket server

@@ -2,7 +2,7 @@
 
 var i, Global = {
   users: {},
-  rooms: {},
+  rooms: {}
 };
 
 module.exports = Global;

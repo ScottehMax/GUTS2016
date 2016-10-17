@@ -36,6 +36,15 @@ class Dungeon {
     this.max_w = max_w;
     this.floors[0] = new Floor(height, width, max_h, max_w, this);
     this.floors[0].index = 0;
+
+    var floors = this.floors;
+    var on_tick = this.on_tick;
+
+    setTimeout(function() {
+      setInterval(function(){
+        on_tick(floors);
+      }, 100);
+    }, 1000);
   }
 
   add_floor(stair_room_hwyx, stair_yx) {
@@ -43,6 +52,12 @@ class Dungeon {
     this.floors[Object.keys(this.floors).length-1].index = Object.keys(this.floors).length - 1;
   }
 
+  on_tick(floors) {
+    var keys = Object.keys(floors);
+    for(var i = 0; i < keys.length; i++) {
+      floors[keys[i]].on_tick();
+    }
+  }
 
 }
 
@@ -60,6 +75,8 @@ class Floor {
     this.rooms = [];
     this.players = {};
     this.npcs = {};
+
+    this.map = [];
 
     // generate initial filled grid
     this.grid = new Array(height);
@@ -91,8 +108,6 @@ class Floor {
     var room = this.rooms[room_index];
     var stairs = [randint(room.y, room.y + room.height - 1), randint(room.x, room.x + room.width - 1)];
     this.grid[stairs[0]][stairs[1]] = new Tile('down_stairs', room_index);
-
-    this.tick();
   };
 
   add_floor() {
@@ -523,53 +538,47 @@ class Floor {
     return res;
   }
 
-  tick() {
+  on_tick() {
     // a tick is 1/10 second (ideally)
     var floor = this;
-    var f = function() {
-      // spawn a mob every 5s on average
-      if (randint(1, Math.floor(50 / (floor.index +1))) == 1) {
-        floor.spawn_mob();
+
+    if (floor.players === {}) return false;
+
+    // spawn a mob every 5s on average
+    if (randint(1, Math.floor(50 / (floor.index +1))) == 1) {
+      floor.spawn_mob();
+    }
+
+    // spawn a potion every 20s on average
+    if (randint(1, 200) == 1) {
+      floor.spawn_potion();
+    }
+
+    // loop over npcs here and make them do shit
+    for (var npc in floor.npcs) {
+      if (floor.npcs[npc].ticksleft == 0) {
+        floor.npcs[npc].search();
+        floor.npcs[npc].ticksleft = floor.npcs[npc].ticks;
+      } else {
+        floor.npcs[npc].ticksleft--;
+      }
+    }
+    // console.log(floor.players);
+    for (var player in floor.players) {
+      // console.log(floor.players[player].health);
+      //
+      // burn hurts 2 dmg every 2 seconds and lasts for 10 seconds on average
+      if (floor.players[player].burning) {
+        if (randint(1, 20) == 1) {
+          floor.players[player].take_damage(fire, fire.attack);
+        }
+        if (randint(1, 100) == 1) {
+          floor.players[player].burning = false;
+        }
       }
 
-      // spawn a potion every 20s on average
-      if (randint(1, 200) == 1) {
-        floor.spawn_potion();
-      }
-
-      // loop over npcs here and make them do shit
-      for (var npc in floor.npcs) {
-        if (floor.npcs[npc].ticksleft == 0) {
-          floor.npcs[npc].search();
-          floor.npcs[npc].ticksleft = floor.npcs[npc].ticks;
-        } else {
-          floor.npcs[npc].ticksleft--;
-        }
-      }
-      // console.log(floor.players);
-      for (var player in floor.players) {
-        // console.log(floor.players[player].health);
-        // 
-        // burn hurts 2 dmg every 2 seconds and lasts for 10 seconds on average
-        if (floor.players[player].burning) {
-          if (randint(1, 20) == 1) {
-            floor.players[player].take_damage(fire, fire.attack);
-          } 
-          if (randint(1, 100) == 1) {
-            floor.players[player].burning = false;
-          }
-        }
-        if (floor.players[player].overwatch) {
-          //Global.users[floor.players[player].uuid].socket.sendUTF(floor.pretty_print(floor.grid, '<br>'));
-        } else {
-          //Global.users[floor.players[player].uuid].socket.sendUTF(floor.pretty_print(floor.view(floor.players[player].y, floor.players[player].x, DRAW_DISTANCE), '<br>'));
-          floor.send_tilemap(floor.players[player]);
-        }
-        
-        //console.log(floor.players[player].socket);
-      }
-    };
-    setInterval(f, 100);
+      floor.send_tilemap(floor.players[player]);
+    }
   }
 
   send_tilemap(player) {
@@ -608,7 +617,11 @@ class Floor {
       },
       map: v
     };
-    Global.users[player.uuid].socket.sendUTF(JSON.stringify(res));
+
+    if (JSON.stringify(v) != player.visibleMapStr) {
+      Global.users[player.uuid].socket.sendUTF(JSON.stringify(res));
+      player.visibleMapStr = JSON.stringify(v);
+    }
   }
 
   pretty_print(grid, separator) {
