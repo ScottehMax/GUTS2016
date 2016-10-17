@@ -78,7 +78,7 @@
       }
       // wait until the page is loaded to do this stuff
       status = "Not Connected";
-      var url = "ws://139.59.188.41:443";
+      var url = "ws://<%= SERVER_ADDRESS %>:<%= SOCKET_PORT %>";
       var messagelist = [];
 
       // create socket object, everything will be sent over this

@@ -128,7 +128,7 @@
     }
 
     function populate(board) {
-      if (board === levelMap) return false;
+
       levelMap = board;
 
       console.log('populating');
@@ -189,7 +189,7 @@
     }
 
     status = "Not Connected";
-    var url = "ws://139.59.188.41:443";
+    var url = "ws://<%= SERVER_ADDRESS %>:<%= SOCKET_PORT %>";
 
     var uuid, images, levelMap, socket, content;
 

@@ -3,16 +3,21 @@
  */
 
 var express = require('express');
+var config = require('../config.js');
+
 var app = express();
+
+app.set('view engine', 'ejs');
+
 exports.startWebServer = function(port) {
   app.use(express.static('project/assets'));
 
   app.get('/', function(req, res) {
-    res.sendFile(__dirname + '/pages/game.html');
+    res.render(__dirname + '/pages/game', config);
   });
 
   app.get('/text', function(req, res) {
-    res.sendFile(__dirname + '/pages/text.html');
+    res.render(__dirname + '/pages/text', config);
   });
 
   app.listen(port);

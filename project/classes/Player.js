@@ -15,6 +15,7 @@ var Global = require('../global.js');
 class Player extends Entity {
   constructor(name, y, x, h, floor, start_weapon, start_armour, level, sprite) {
     super(name, y, x, h, floor, start_weapon,  start_armour, level, sprite);
+    this.visibleMapStr = "";
   }
   
   take_damage(ent, dam) {
