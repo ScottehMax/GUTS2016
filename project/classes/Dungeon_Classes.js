@@ -542,7 +542,9 @@ class Floor {
     // a tick is 1/10 second (ideally)
     var floor = this;
 
-    if (floor.players === {}) return false;
+    if (Object.keys(floor.players).length === 0) {
+      return false;
+    }
 
     // spawn a mob every 5s on average
     if (randint(1, Math.floor(50 / (floor.index +1))) == 1) {
