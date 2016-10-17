@@ -23,6 +23,7 @@ class Player extends Entity {
     console.log('player ' + dam)
     message(this, ent.name + ' attacked you for ' + dmg + ' damage', 1);
     // super.take_damage(ent, dam);
+    return dmg;
   }
   
   attack(ent) {
